@@ -2,19 +2,40 @@
 =======================================================================
 Project: Mockfish AI Chess Engine
 Purpose: Compares performance metrics (execution time, explored nodes,
-         effective branching factor, and pruning efficiency) across:
+         estimated effective branching factor, and node reduction) across:
          1. Pure Minimax (Unpruned Exhaustive Search)
          2. Alpha-Beta Pruning (Default Move Ordering)
-         3. Alpha-Beta Pruning + Heuristic Move Ordering (MVV-LVA, PST, Checks)
+         3. Alpha-Beta Pruning + Heuristic Move Ordering (MVV-LVA, promotions, castling, checks)
          4. Iterative Deepening Depth-First Search (IDDFS)
 """
 
 import time
 import math
 import chess
+from typing import Optional
 
 from heuristics import evaluate_board, CHECKMATE_SCORE
 from search import order_moves
+
+
+# ---------------------------------------------------------------------------
+# Shared terminal policy (matches search.py's recursive search)
+# ---------------------------------------------------------------------------
+def terminal_score(board: chess.Board, depth: int) -> Optional[float]:
+    """Return a terminal search score, or None if search should continue."""
+    if board.is_checkmate():
+        return (-CHECKMATE_SCORE - depth) if board.turn == chess.WHITE else (CHECKMATE_SCORE + depth)
+
+    # Twofold repetition is a search heuristic, not an official draw rule.
+    if (
+        board.is_stalemate()
+        or board.is_insufficient_material()
+        or board.can_claim_fifty_moves()
+        or board.is_repetition(2)
+    ):
+        return 0.0
+
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -27,10 +48,9 @@ def minimax_raw(board: chess.Board, depth: int, is_max: bool) -> float:
     global minimax_nodes
     minimax_nodes += 1
 
-    if board.is_checkmate():
-        return (-CHECKMATE_SCORE - depth) if board.turn == chess.WHITE else (CHECKMATE_SCORE + depth)
-    if board.is_stalemate() or board.is_insufficient_material() or board.can_claim_draw():
-        return 0.0
+    score = terminal_score(board, depth)
+    if score is not None:
+        return score
     if depth == 0:
         return evaluate_board(board)
 
@@ -39,16 +59,20 @@ def minimax_raw(board: chess.Board, depth: int, is_max: bool) -> float:
         max_eval = -math.inf
         for m in moves:
             board.push(m)
-            val = minimax_raw(board, depth - 1, False)
-            board.pop()
+            try:
+                val = minimax_raw(board, depth - 1, False)
+            finally:
+                board.pop()
             max_eval = max(max_eval, val)
         return max_eval
     else:
         min_eval = math.inf
         for m in moves:
             board.push(m)
-            val = minimax_raw(board, depth - 1, True)
-            board.pop()
+            try:
+                val = minimax_raw(board, depth - 1, True)
+            finally:
+                board.pop()
             min_eval = min(min_eval, val)
         return min_eval
 
@@ -63,10 +87,9 @@ def alpha_beta_unordered(board: chess.Board, depth: int, alpha: float, beta: flo
     global ab_unordered_nodes
     ab_unordered_nodes += 1
 
-    if board.is_checkmate():
-        return (-CHECKMATE_SCORE - depth) if board.turn == chess.WHITE else (CHECKMATE_SCORE + depth)
-    if board.is_stalemate() or board.is_insufficient_material() or board.can_claim_draw() or board.is_repetition(2):
-        return 0.0
+    score = terminal_score(board, depth)
+    if score is not None:
+        return score
     if depth == 0:
         return evaluate_board(board)
 
@@ -75,8 +98,10 @@ def alpha_beta_unordered(board: chess.Board, depth: int, alpha: float, beta: flo
         max_eval = -math.inf
         for m in moves:
             board.push(m)
-            val = alpha_beta_unordered(board, depth - 1, alpha, beta, False)
-            board.pop()
+            try:
+                val = alpha_beta_unordered(board, depth - 1, alpha, beta, False)
+            finally:
+                board.pop()
             max_eval = max(max_eval, val)
             alpha = max(alpha, val)
             if beta <= alpha:
@@ -86,8 +111,10 @@ def alpha_beta_unordered(board: chess.Board, depth: int, alpha: float, beta: flo
         min_eval = math.inf
         for m in moves:
             board.push(m)
-            val = alpha_beta_unordered(board, depth - 1, alpha, beta, True)
-            board.pop()
+            try:
+                val = alpha_beta_unordered(board, depth - 1, alpha, beta, True)
+            finally:
+                board.pop()
             min_eval = min(min_eval, val)
             beta = min(beta, val)
             if beta <= alpha:
@@ -105,10 +132,9 @@ def alpha_beta_ordered(board: chess.Board, depth: int, alpha: float, beta: float
     global ab_ordered_nodes
     ab_ordered_nodes += 1
 
-    if board.is_checkmate():
-        return (-CHECKMATE_SCORE - depth) if board.turn == chess.WHITE else (CHECKMATE_SCORE + depth)
-    if board.is_stalemate() or board.is_insufficient_material() or board.can_claim_draw() or board.is_repetition(2):
-        return 0.0
+    score = terminal_score(board, depth)
+    if score is not None:
+        return score
     if depth == 0:
         return evaluate_board(board)
 
@@ -117,8 +143,10 @@ def alpha_beta_ordered(board: chess.Board, depth: int, alpha: float, beta: float
         max_eval = -math.inf
         for m in moves:
             board.push(m)
-            val = alpha_beta_ordered(board, depth - 1, alpha, beta, False)
-            board.pop()
+            try:
+                val = alpha_beta_ordered(board, depth - 1, alpha, beta, False)
+            finally:
+                board.pop()
             max_eval = max(max_eval, val)
             alpha = max(alpha, val)
             if beta <= alpha:
@@ -128,8 +156,10 @@ def alpha_beta_ordered(board: chess.Board, depth: int, alpha: float, beta: float
         min_eval = math.inf
         for m in moves:
             board.push(m)
-            val = alpha_beta_ordered(board, depth - 1, alpha, beta, True)
-            board.pop()
+            try:
+                val = alpha_beta_ordered(board, depth - 1, alpha, beta, True)
+            finally:
+                board.pop()
             min_eval = min(min_eval, val)
             beta = min(beta, val)
             if beta <= alpha:
@@ -142,16 +172,29 @@ def alpha_beta_ordered(board: chess.Board, depth: int, alpha: float, beta: float
 # ---------------------------------------------------------------------------
 iddfs_nodes = 0
 
-def iterative_deepening(board: chess.Board, max_depth: int) -> tuple[chess.Move, float, int]:
+def iterative_deepening(board: chess.Board, max_depth: int) -> tuple[Optional[chess.Move], float, int]:
     """Iterative Deepening Search iteratively running Alpha-Beta from depth 1 to max_depth."""
     global iddfs_nodes, ab_ordered_nodes
+    if max_depth < 1:
+        raise ValueError("Search depth must be at least 1")
+
     iddfs_nodes = 0
-    best_move = list(board.legal_moves)[0]
+    best_move = None
     best_eval = 0.0
     is_max = (board.turn == chess.WHITE)
 
     for d in range(1, max_depth + 1):
-        ab_ordered_nodes = 0
+        # The root is visited once at every depth, even though its
+        # children are searched directly rather than through recursion.
+        ab_ordered_nodes = 1
+
+        score = terminal_score(board, d)
+        if score is not None:
+            iddfs_nodes += ab_ordered_nodes
+            best_move = None
+            best_eval = score
+            continue
+
         ordered = order_moves(board)
         curr_best_eval = -math.inf if is_max else math.inf
         curr_best_move = ordered[0]
@@ -160,8 +203,10 @@ def iterative_deepening(board: chess.Board, max_depth: int) -> tuple[chess.Move,
 
         for m in ordered:
             board.push(m)
-            score = alpha_beta_ordered(board, d - 1, alpha, beta, not is_max)
-            board.pop()
+            try:
+                score = alpha_beta_ordered(board, d - 1, alpha, beta, not is_max)
+            finally:
+                board.pop()
 
             if is_max:
                 if score > curr_best_eval:
@@ -192,51 +237,75 @@ def run_benchmarks():
         ("Tactical Exchange Position", chess.Board("r1b1k2r/pppp1ppp/8/4N3/1b1nn3/2N5/PPPP1PPP/R1BQKB1R w KQkq - 0 7")),
     ]
 
-    print("=========================================================================================")
-    print("                     MOCKFISH ALGORITHM PERFORMANCE COMPARISON                           ")
-    print("=========================================================================================")
+    print("=" * 109)
+    print("MOCKFISH ALGORITHM PERFORMANCE COMPARISON".center(109))
+    print("=" * 109)
 
     for pos_name, board in test_positions:
         print(f"\n--- Testing Position: {pos_name} ---")
         print(f"    FEN: {board.fen()}")
         print(f"    Legal Moves Available: {len(list(board.legal_moves))}")
-        print("-----------------------------------------------------------------------------------------")
-        print(f"{'Algorithm':<36} | {'Depth':<5} | {'Nodes':<10} | {'Time (ms)':<10} | {'Eff. Branching'}")
-        print("-----------------------------------------------------------------------------------------")
+        print("-" * 109)
+        print(f"{'Algorithm':<36} | {'Depth':<5} | {'Nodes':<10} | {'Time (ms)':<10} | {'Est. Branching':<15} | {'Eval':>10}")
+        print("-" * 109)
 
         for depth in [1, 2, 3]:
+            original_fen = board.fen()
+            original_stack = list(board.move_stack)
+
             # 1. Pure Minimax
             minimax_nodes = 0
             t0 = time.perf_counter()
-            minimax_raw(board, depth, board.turn == chess.WHITE)
+            score_minimax = minimax_raw(board, depth, board.turn == chess.WHITE)
             t_minimax = (time.perf_counter() - t0) * 1000
-            b_minimax = minimax_nodes ** (1.0 / depth) if depth > 0 else 1.0
-            print(f"{'Pure Minimax (Exhaustive)':<36} | {depth:<5} | {minimax_nodes:<10} | {t_minimax:<10.2f} | {b_minimax:.2f}")
+            # N**(1/depth) is an estimate, not the exact effective branching factor.
+            b_minimax = minimax_nodes ** (1.0 / depth)
+            print(f"{'Pure Minimax (Exhaustive)':<36} | {depth:<5} | {minimax_nodes:<10} | {t_minimax:<10.2f} | {b_minimax:<15.2f} | {score_minimax:>+10.4f}")
 
             # 2. Alpha-Beta (Arbitrary / Unordered)
             ab_unordered_nodes = 0
             t0 = time.perf_counter()
-            alpha_beta_unordered(board, depth, -math.inf, math.inf, board.turn == chess.WHITE)
+            score_ab_unord = alpha_beta_unordered(board, depth, -math.inf, math.inf, board.turn == chess.WHITE)
             t_ab_unord = (time.perf_counter() - t0) * 1000
-            b_ab_unord = ab_unordered_nodes ** (1.0 / depth) if depth > 0 else 1.0
-            print(f"{'Alpha-Beta (Unordered)':<36} | {depth:<5} | {ab_unordered_nodes:<10} | {t_ab_unord:<10.2f} | {b_ab_unord:.2f}")
+            b_ab_unord = ab_unordered_nodes ** (1.0 / depth)
+            print(f"{'Alpha-Beta (Unordered)':<36} | {depth:<5} | {ab_unordered_nodes:<10} | {t_ab_unord:<10.2f} | {b_ab_unord:<15.2f} | {score_ab_unord:>+10.4f}")
 
             # 3. Alpha-Beta + Heuristic Move Ordering (Mockfish)
             ab_ordered_nodes = 0
             t0 = time.perf_counter()
-            alpha_beta_ordered(board, depth, -math.inf, math.inf, board.turn == chess.WHITE)
+            score_ab_ord = alpha_beta_ordered(board, depth, -math.inf, math.inf, board.turn == chess.WHITE)
             t_ab_ord = (time.perf_counter() - t0) * 1000
-            b_ab_ord = ab_ordered_nodes ** (1.0 / depth) if depth > 0 else 1.0
-            print(f"{'Alpha-Beta + Move Ordering':<36} | {depth:<5} | {ab_ordered_nodes:<10} | {t_ab_ord:<10.2f} | {b_ab_ord:.2f}")
+            ab_ordered_nodes_at_depth = ab_ordered_nodes
+            b_ab_ord = ab_ordered_nodes ** (1.0 / depth)
+            print(f"{'Alpha-Beta + Move Ordering':<36} | {depth:<5} | {ab_ordered_nodes:<10} | {t_ab_ord:<10.2f} | {b_ab_ord:<15.2f} | {score_ab_ord:>+10.4f}")
 
             # 4. Iterative Deepening (IDDFS)
             t0 = time.perf_counter()
-            _, _, iddfs_total_nodes = iterative_deepening(board, depth)
+            _, score_iddfs, iddfs_total_nodes = iterative_deepening(board, depth)
             t_iddfs = (time.perf_counter() - t0) * 1000
-            b_iddfs = iddfs_total_nodes ** (1.0 / depth) if depth > 0 else 1.0
-            print(f"{'Iterative Deepening DFS (IDDFS)':<36} | {depth:<5} | {iddfs_total_nodes:<10} | {t_iddfs:<10.2f} | {b_iddfs:.2f}")
+            b_iddfs = iddfs_total_nodes ** (1.0 / depth)
+            print(f"{'Iterative Deepening DFS (IDDFS)':<36} | {depth:<5} | {iddfs_total_nodes:<10} | {t_iddfs:<10.2f} | {b_iddfs:<15.2f} | {score_iddfs:>+10.4f}")
 
-            print("-----------------------------------------------------------------------------------------")
+            # These comparisons are outside the measured search timings.
+            for name, score in (
+                ("Unordered Alpha-Beta", score_ab_unord),
+                ("Ordered Alpha-Beta", score_ab_ord),
+                ("Iterative Deepening", score_iddfs),
+            ):
+                if not math.isclose(score_minimax, score, rel_tol=0.0, abs_tol=1e-6):
+                    raise AssertionError(
+                        f"{pos_name}, depth {depth}: {name} returned {score}, "
+                        f"expected {score_minimax}"
+                    )
+
+            if board.fen() != original_fen or board.move_stack != original_stack:
+                raise AssertionError("Benchmark search modified the original board")
+
+            node_reduction = (1 - ab_ordered_nodes_at_depth / minimax_nodes) * 100
+            speedup = t_minimax / t_ab_ord if t_ab_ord > 0 else math.inf
+            print(f"  Evaluation agreement: PASS | Ordered Alpha-Beta: "
+                  f"{node_reduction:.2f}% fewer nodes, {speedup:.2f}x speedup")
+            print("-" * 109)
 
 
 if __name__ == "__main__":

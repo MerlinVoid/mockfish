@@ -1,104 +1,250 @@
 # Mockfish AI Chess Engine
 
-A lightweight, modular AI chess engine and Tkinter GUI built with Python and the `python-chess` library for university coursework.
+Mockfish is a lightweight, modular chess engine with an interactive Tkinter GUI, developed using Python and the `python-chess` library.
 
-Demonstrates core Artificial Intelligence syllabus topics:
-- **Knowledge Bases & Expert Systems** (Opening books, Propositional / FOL rule bases)
-- **Adversarial Search** (Minimax, Alpha-Beta Pruning, Move Ordering, Iterative Deepening)
-- **Heuristics & Evaluation** (Material balance, Piece-Square Tables, Mobility, Positional features)
-- **Interactive UI & Systems Integration** (Event-driven Tkinter GUI, Telemetry, Game Loop)
+The project combines knowledge-based decision-making, adversarial search and heuristic evaluation to play chess against a human opponent. It also compares different search methods based on execution time and the number of explored nodes.
+
+**Course:** Introduction to AI with Python (25CS2000)  
+**Institute:** IIITDM Kancheepuram
 
 ---
 
-## Team Division & Role Ownership
+## AI Algorithms and Techniques
 
-To prevent Git merge conflicts, the codebase is strictly separated into four self-contained modules corresponding to each team member's role:
+- **Knowledge-Based Decision-Making:** Opening book retrieval using FEN-based position matching.
+- **Minimax Search:** Depth-limited adversarial search used as a baseline for performance comparison.
+- **Alpha-Beta Pruning:** Reduces the number of explored nodes by pruning branches that cannot improve the minimax value.
+- **Heuristic Move Ordering:** Prioritizes promising moves to improve pruning efficiency.
+- **Iterative Deepening Search:** Progressively searches from depth 1 to a specified maximum depth.
+- **Heuristic Evaluation:** Evaluates board positions using material balance, Piece-Square Tables (PST) and positional features.
 
-| File | Role / Domain | Core Responsibilities & Next Steps |
+The playable engine uses knowledge-based opening retrieval and fixed-depth Alpha-Beta search with heuristic move ordering at a depth of 3 plies. Pure Minimax and Iterative Deepening are implemented separately in `benchmark.py` for comparative performance analysis.
+
+---
+
+## Features
+
+- Interactive human-versus-AI chess gameplay.
+- Legal move generation and validation.
+- Opening book for common chess openings.
+- Minimax search with Alpha-Beta pruning and heuristic move ordering.
+- Material and positional board evaluation.
+- Repetition-aware search and depth-adjusted checkmate scoring.
+- Legal move and capture indicators, check and checkmate highlighting.
+- Board flipping and game restart.
+- Interactive Game Over overlay with Play Again and Review Board options.
+- Search telemetry displaying move, depth, explored nodes and evaluation.
+- Algorithm benchmarking and automated testing.
+
+---
+
+## Team Division and Module Responsibilities
+
+| Team Member | Module | Implemented Responsibilities |
 | :--- | :--- | :--- |
-| **`knowledge_base.py`** | **Role 1: Logic & Rules** | • Opening book lookups (`chess.polyglot` / SQLite / dictionary)<br>• Propositional / First-Order Logic (FOL) safety & endgame rules<br>• Endgame tablebase queries (`chess.syzygy`) |
-| **`heuristics.py`** | **Role 2: State Space & Heuristics** | • Piece-Square Tables (PST) for midgame and endgame<br>• Positional evaluation: mobility, center control, king safety, castling bonuses<br>• Pawn structure evaluation: doubled, isolated, and passed pawns |
-| **`search.py`** | **Role 3: Adversarial Search** | • Minimax with Alpha-Beta pruning & ply-aware distance-to-mate<br>• Advanced move ordering (MVV-LVA, Killer Moves, History Heuristic)<br>• Anti-shuffling tie-breakers & repetition avoidance<br>• Iterative Deepening DFS (IDDFS) & Transposition Tables |
-| **`main.py`** | **Role 4: GUI & Integrator** | • Tkinter GUI canvas, coordinate mapping, and rendering<br>• In-canvas interactive Game Over screen with "Play Again" and "Review Board"<br>• King Check / Checkmate warning highlights and board flipping<br>• Telemetry bar and match statistics |
+| **B Sreenikesh (CS25B2051)** | `knowledge_base.py` | Opening book, FEN-based position matching, knowledge-based move retrieval and legality validation. |
+| **Aditya Kumar (CS25I1050)** | `heuristics.py` | Material evaluation, Piece-Square Tables, castling incentives, king-position evaluation, rook activity and bishop-pair bonuses. |
+| **Amit Kumar (CS25I1051)** | `search.py` | Minimax with Alpha-Beta pruning, heuristic move ordering, depth-adjusted mate scoring and repetition avoidance. |
+| **Aviral Pandey (CS25B2054)** | `main.py`, `benchmark.py`, `test_suite.py` | Tkinter GUI, game-loop integration, telemetry, Game Over overlay, automated testing and performance benchmarking. |
+
+### Supporting Files
+
+| File | Purpose |
+| :--- | :--- |
+| `benchmark.py` | Compares the performance of different adversarial search methods. |
+| `test_suite.py` | Contains unit and integration tests for the application. |
+| `requirements.txt` | Specifies the required Python dependency. |
+| `.gitignore` | Excludes unnecessary local and generated files. |
 
 ---
 
 ## Quickstart
 
 ### 1. Prerequisites
-- Python 3.10+
-- Tkinter (standard with Python on Windows/macOS)
 
-### 2. Install Dependencies
+- Python 3.10 or later.
+- Tkinter (normally included with Python on Windows and macOS).
+- Git (optional, for cloning the repository).
+
+### 2. Clone the Repository
+
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/unclePRO/mockfish.git
+cd mockfish
 ```
 
-### 3. Run Mockfish
+### 3. Install Dependencies
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+### 4. Run Mockfish
+
 ```bash
 python main.py
 ```
 
-### 4. Run the Full Test Suite
-Run the automated test suite verifying all 4 modules, anti-shuffling logic, checkmate detection, and GUI overlays:
+The human player plays as White, while Mockfish plays as Black. Select a piece and click a highlighted legal destination to make a move. The engine responds using either its opening book or adversarial search.
+
+### 5. Run the Full Test Suite
+
 ```bash
 python test_suite.py
 ```
 
-### 5. Run Individual Module Self-Tests
-Each file has a built-in `if __name__ == "__main__":` test block so teammates can test their individual module without launching the full GUI:
+The five test groups cover knowledge-base retrieval, heuristic evaluation, adversarial move selection and repetition handling, selected-move correctness and board restoration, and GUI functionality. GUI integration tests require a graphical desktop environment. All five groups passed in the recorded local test run.
+
+### 6. Run Individual Module Self-Tests
 
 ```bash
-# Test Role 1 (Knowledge Base)
 python knowledge_base.py
-
-# Test Role 2 (Heuristics)
 python heuristics.py
-
-# Test Role 3 (Adversarial Search)
 python search.py
 ```
 
+### 7. Run Algorithm Benchmarks
+
+```bash
+python benchmark.py
+```
+
+The benchmark compares four search configurations across two chess positions at search depths 1, 2 and 3.
+
 ---
 
-## Architectural Flowchart
+## System Architecture
+
+1. The human player makes a legal move through the GUI.
+2. The updated board position is passed to the knowledge base.
+3. If a matching opening position exists and its stored move is legal, the move is returned.
+4. Otherwise, the engine performs Alpha-Beta search with heuristic move ordering.
+5. Non-terminal positions at the search horizon are evaluated using the heuristic evaluation function.
+6. The selected move is executed, and the GUI and telemetry are updated.
+
+### Architectural Flowchart
 
 ```mermaid
 flowchart TD
-    HumanMove["Human Makes Move (Click-to-Play Canvas)"] --> LegalityCheck{"Is Move Legal?"}
+    HumanMove["Human Makes Move"] --> LegalityCheck{"Is Move Legal?"}
     LegalityCheck -- No --> ResetSelect["Clear Selection / Wait"]
-    LegalityCheck -- Yes --> PushHuman["board.push(human_move)"]
-    
+    ResetSelect --> HumanMove
+    LegalityCheck -- Yes --> PushHuman["Update Board State"]
     PushHuman --> GameOver1{"Is Game Over?"}
-    GameOver1 -- Yes --> EndBanner["Display Result (Checkmate / Draw)"]
-    GameOver1 -- No --> BotStart["Trigger Bot Turn (root.after)"]
-    
-    BotStart --> QueryKB["query_knowledge_base(board)\n(Role: Logic & Rules)"]
-    QueryKB --> KBFound{"Match Found?"}
-    
-    KBFound -- Yes --> ExecMove["Execute Bot Move & Update Telemetry"]
-    KBFound -- No --> SearchMove["get_best_move(board, depth)\n(Role: Adversarial Search)"]
-    
-    SearchMove --> AlphaBeta["alpha_beta(depth, alpha, beta)\nwith Move Ordering & PST"]
-    AlphaBeta --> EvalCall["evaluate_board(board)\n(Role: State Space & Heuristics)"]
+    GameOver1 -- Yes --> EndBanner["Display Game Over Overlay"]
+    GameOver1 -- No --> BotStart["Trigger Bot Turn"]
+    BotStart --> QueryKB["Query Knowledge Base"]
+    QueryKB --> KBFound{"Known Legal Book Move?"}
+    KBFound -- Yes --> BookMove["Retrieve Legal Book Move"]
+    KBFound -- No --> SearchMove["Adversarial Search - Depth 3"]
+    SearchMove --> AlphaBeta["Minimax with Alpha-Beta Pruning"]
+    AlphaBeta --> EvalCall["Heuristic Board Evaluation"]
     EvalCall --> AlphaBeta
-    AlphaBeta --> BestMoveFound["Return Best Move"]
+    AlphaBeta --> BestMoveFound["Return Selected Move"]
+    BookMove --> ExecMove["Execute Bot Move"]
     BestMoveFound --> ExecMove
-    
-    ExecMove --> Redraw["Redraw Canvas & Update Telemetry Label"]
+    ExecMove --> Redraw["Redraw Board and Update Telemetry"]
     Redraw --> GameOver2{"Is Game Over?"}
-    GameOver2 -- Yes --> EndBanner["In-Canvas Game Over Overlay"]
-    GameOver2 -- No --> HumanTurn["Wait for Human Move"]
+    GameOver2 -- Yes --> EndBanner
+    GameOver2 -- No --> HumanMove
 ```
 
 ---
 
-## Git Workflow to Avoid Merge Conflicts
+## Heuristic Evaluation
 
-1. **Work in your assigned file:** Avoid making changes outside your designated module.
-2. **Contract-first interfaces:** The signatures of `query_knowledge_base(board)`, `evaluate_board(board)`, and `get_best_move(board, max_depth)` are locked. Teammates can add helper functions and classes inside their files freely.
-3. **Commit often with descriptive prefixes:**
-   - `feat(logic): add polyglot opening book reader`
-   - `feat(heuristics): add piece-square tables`
-   - `feat(search): add iterative deepening with 2s timeout`
-   - `feat(gui): add promotion choice modal dialog`
+The evaluation function scores a position from White's perspective.
+
+| Piece | Material Value |
+| :--- | ---: |
+| Pawn | 1.00 |
+| Knight | 3.20 |
+| Bishop | 3.30 |
+| Rook | 5.00 |
+| Queen | 9.00 |
+
+Material evaluation is supplemented by Piece-Square Tables, separate middlegame and endgame king tables, castling rights and king-position bonuses, open and semi-open rook file bonuses, seventh-rank rook activity and bishop-pair bonuses.
+
+A positive evaluation indicates an advantage for White, while a negative evaluation indicates an advantage for Black. Terminal checkmate and draw conditions are evaluated separately. Root-level repetition tie-breaking verifies possible equal cutoff scores before preferring a non-repeating move.
+
+---
+
+## Performance Comparison
+
+Four configurations are evaluated: Pure Minimax, unordered Alpha-Beta, ordered Alpha-Beta and Iterative Deepening using ordered Alpha-Beta.
+
+### Tactical Exchange Position
+
+Recorded results at search depth 3:
+
+| Search Method | Nodes Explored | Execution Time (ms) |
+| :--- | ---: | ---: |
+| Pure Minimax | 52,088 | 23,122.83 |
+| Alpha-Beta (Unordered) | 3,253 | 1,322.00 |
+| **Alpha-Beta + Move Ordering** | **378** | **163.13** |
+| Iterative Deepening | 521 | 203.70 |
+
+### Italian Game Middlegame Position
+
+Recorded results at search depth 3:
+
+| Search Method | Nodes Explored | Execution Time (ms) |
+| :--- | ---: | ---: |
+| Pure Minimax | 44,701 | 19,625.57 |
+| Alpha-Beta (Unordered) | 10,775 | 4,113.20 |
+| **Alpha-Beta + Move Ordering** | **2,475** | **1,024.08** |
+| Iterative Deepening | 2,696 | 1,121.21 |
+
+### Key Observations
+
+Compared with pure Minimax, ordered Alpha-Beta achieved:
+
+| Metric | Tactical Exchange | Italian Middlegame |
+| :--- | ---: | ---: |
+| Reduction in Explored Nodes | 99.27% | 94.46% |
+| Execution Speedup | 141.74x | 19.16x |
+
+All configurations use the same static evaluation and terminal policy, including twofold repetition as a search heuristic. Root visits are counted consistently, including each iteration of iterative deepening. All four methods agreed on the minimax evaluation at all six tested position-depth combinations.
+
+At depth 1, all methods visit the same number of nodes; heuristic ordering adds overhead without pruning savings. At depths 2 and 3, pruning and ordering reduced the computational cost in these tests. Execution times are single-run measurements and depend on hardware, board position and search depth. They do not measure playing strength.
+
+---
+
+## Why Alpha-Beta with Move Ordering?
+
+Chess is a two-player adversarial game with a large branching factor. Conventional single-agent search and local optimization methods do not directly account for an opponent's strategic responses.
+
+Minimax provides an adversarial decision-making framework, but exhaustive exploration becomes computationally expensive as depth increases. Alpha-Beta pruning reduces unnecessary exploration, while heuristic move ordering improves the likelihood of early cutoffs.
+
+This combination was selected for the playable engine because it offers a practical balance between search depth, computational cost and decision quality.
+
+---
+
+## Limitations and Future Work
+
+### Current Limitations
+
+- Fixed search depth of 3 plies during gameplay.
+- Limited opening book coverage.
+- Horizon effect caused by depth-limited search.
+- Handcrafted heuristic evaluation.
+- No position caching or transposition tables.
+- Search computation may temporarily block GUI interaction.
+- Limited benchmark positions and single-run timing measurements.
+
+### Future Improvements
+
+- Quiescence search to mitigate the horizon effect.
+- Transposition tables using Zobrist hashing.
+- Dynamic search depth and time management.
+- Expanded opening book coverage and endgame tablebase integration.
+- Improved evaluation and move-ordering techniques.
+- Broader correctness testing and repeated performance trials.
+
+---
+
+## Conclusion
+
+Mockfish demonstrates classical AI techniques for adversarial game-playing through a functional Python chess engine. In the recorded depth-3 benchmarks, Alpha-Beta pruning with heuristic move ordering substantially reduced explored nodes and execution time compared with exhaustive Minimax while preserving the tested minimax values.
+
+The project integrates knowledge-based decision-making, adversarial search, heuristic evaluation and an interactive graphical interface into a modular application.

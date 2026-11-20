@@ -155,84 +155,108 @@ def get_best_move(
     max_depth: int = 3,
     return_eval: bool = False
 ) -> Union[Optional[chess.Move], tuple[Optional[chess.Move], float]]:
-    """Determines the optimal move for the current side to move using Alpha-Beta search.
+    """Determines the best move using depth-limited Alpha-Beta search.
 
-    Includes intelligent tie-breaking:
-      - Penalizes moves that immediately repeat a recent position (avoiding rook shuffle loops).
-      - Prefers moves with higher positional initiative when scores tie.
+    Prefers non-repeating moves when their exact minimax scores are equal.
+    Retains heuristic move ordering for other ties.
 
     Args:
         board: The current chess.Board.
-        max_depth: Maximum ply search depth (default: 3).
-        return_eval: If True, returns a tuple of (best_move, eval_score).
-                     If False, returns just best_move (standard interface).
+        max_depth: Maximum search depth in plies (default: 3).
+        return_eval: If True, returns (best_move, eval_score).
+                     Otherwise, returns only best_move.
 
     Returns:
-        chess.Move | tuple[chess.Move, float] | None:
-        The best legal move found, or None if no legal moves exist.
+        The selected legal move, or None if no legal moves exist.
     """
+
+    if max_depth < 1:
+        raise ValueError("Search depth must be at least 1")
+
     global LAST_SEARCH_TELEMETRY
     LAST_SEARCH_TELEMETRY["nodes"] = 0
     LAST_SEARCH_TELEMETRY["depth"] = max_depth
 
     legal_moves = order_moves(board)
+
     if not legal_moves:
-        LAST_SEARCH_TELEMETRY["eval"] = 0.0
-        return (None, 0.0) if return_eval else None
+        score = evaluate_board(board)
+        LAST_SEARCH_TELEMETRY["eval"] = score
+        return (None, score) if return_eval else None
 
     # White maximizes, Black minimizes
     is_white_to_move = (board.turn == chess.WHITE)
 
     best_eval = -math.inf if is_white_to_move else math.inf
+    best_move = None
+    best_is_repetition = False
+
     alpha = -math.inf
     beta = math.inf
 
-    scored_moves: list[tuple[chess.Move, float]] = []
-
     for move in legal_moves:
         board.push(move)
-        eval_score = alpha_beta(board, max_depth - 1, alpha, beta, not is_white_to_move)
-        board.pop()
 
-        scored_moves.append((move, eval_score))
+        try:
+            is_rep = board.is_repetition(2)
 
+            eval_score = alpha_beta(
+                board,
+                max_depth - 1,
+                alpha,
+                beta,
+                not is_white_to_move
+            )
+
+            # A cutoff score may be a bound rather than an exact score.
+            # Verify a potential tie before preferring a non-repeating move.
+            if (
+                eval_score == best_eval
+                and best_is_repetition
+                and not is_rep
+            ):
+                eval_score = alpha_beta(
+                    board,
+                    max_depth - 1,
+                    -math.inf,
+                    math.inf,
+                    not is_white_to_move
+                )
+
+        finally:
+            board.pop()
+
+        # Determine whether the current move is strictly better
         if is_white_to_move:
-            if eval_score > best_eval:
-                best_eval = eval_score
-            alpha = max(alpha, eval_score)
+            is_better = eval_score > best_eval
         else:
-            if eval_score < best_eval:
-                best_eval = eval_score
-            beta = min(beta, eval_score)
+            is_better = eval_score < best_eval
+
+        # Update on improvement or a verified non-repeating tie
+        if (
+            best_move is None
+            or is_better
+            or (
+                eval_score == best_eval
+                and best_is_repetition
+                and not is_rep
+            )
+        ):
+            best_move = move
+            best_eval = eval_score
+            best_is_repetition = is_rep
+
+        # Update Alpha-Beta bounds
+        if is_white_to_move:
+            alpha = max(alpha, best_eval)
+        else:
+            beta = min(beta, best_eval)
 
     LAST_SEARCH_TELEMETRY["eval"] = best_eval
 
-    # Filter all moves that achieve best_eval (within tiny epsilon 0.01)
-    epsilon = 0.01
-    if is_white_to_move:
-        top_candidates = [m for m, s in scored_moves if s >= best_eval - epsilon]
-    else:
-        top_candidates = [m for m, s in scored_moves if s <= best_eval + epsilon]
-
-    # Tie-breaking against rook shuffling:
-    # If a candidate move repeats a position (causes repetition) and other non-repeating
-    # candidate moves exist, filter out the repeating moves!
-    non_repeating_candidates = []
-    for move in top_candidates:
-        board.push(move)
-        is_rep = board.is_repetition(2)
-        board.pop()
-        if not is_rep:
-            non_repeating_candidates.append(move)
-
-    if non_repeating_candidates:
-        # Pick the best non-repeating move (first in ordered priority)
-        best_move = non_repeating_candidates[0]
-    else:
-        best_move = top_candidates[0] if top_candidates else legal_moves[0]
-
     if return_eval:
         return best_move, best_eval
+
     return best_move
 
 
@@ -245,7 +269,11 @@ if __name__ == "__main__":
     # Test 1: Starting position move
     test_board = chess.Board()
     print("[Search Test] Running Minimax Alpha-Beta on starting position...")
-    move, score = get_best_move(test_board, max_depth=3, return_eval=True)
+    result = get_best_move(test_board, max_depth=3, return_eval=True)
+    assert isinstance(result, tuple)
+
+    move, score = result
+
     telemetry = get_last_telemetry()
     print(f"[Search Test] Selected Move: {move} | Eval: {score:.2f} | Telemetry: {telemetry}")
     assert move is not None, "Search should return a valid legal move"
