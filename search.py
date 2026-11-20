@@ -6,15 +6,16 @@ Author: Team Mockfish (Search Specialist)
 Responsibilities:
 - Implement adversarial game tree search (Minimax, Alpha-Beta pruning).
 - Implement move ordering heuristics to maximize alpha-beta cutoffs.
-- Provide iterative deepening (IDDFS) and time management.
-- Calculate telemetry metrics (nodes visited, search depth, effective branching factor).
+- Factor distance-to-mate into checkmate evaluations (faster mates preferred).
+- Prevent repetitive piece shuffling via repetition detection.
+- Provide telemetry metrics (nodes visited, search depth, effective branching factor).
 """
 
 import math
 from typing import Optional, Union
 import chess
 
-from heuristics import evaluate_board
+from heuristics import evaluate_board, CHECKMATE_SCORE
 
 # Module-level telemetry dictionary to store metrics from the most recent search
 LAST_SEARCH_TELEMETRY: dict[str, Union[int, float]] = {
@@ -27,39 +28,51 @@ LAST_SEARCH_TELEMETRY: dict[str, Union[int, float]] = {
 def order_moves(board: chess.Board) -> list[chess.Move]:
     """Orders legal moves to maximize alpha-beta pruning efficiency.
 
-    Good move ordering explores the strongest candidate moves first, triggering
-    early beta-cutoffs and dramatically reducing the effective branching factor.
+    Explores the strongest candidate moves first, triggering early beta-cutoffs
+    and dramatically reducing the effective branching factor.
 
-    Current Stub Heuristics:
-    1. Captures first (sorted by victim value or simple capture flag)
-    2. Moves that deliver check
-    3. Pawn promotions
-    4. Quiet moves
-
-    Syllabus & Coursework Extension Points for Search Teammate:
-    ----------------------------------------------------------
-    - MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
-    - Killer Move Heuristic (store 2 quiet moves per ply that caused cutoffs)
-    - History Heuristic (table of moves causing cutoffs across all depths)
-    - Transposition Table (hash move ordered first)
+    Priority Order:
+      1. Captures sorted by MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
+      2. Pawn promotions (Queen / Knight)
+      3. Castling moves (King safety & rook development)
+      4. Moves delivering check
+      5. Quiet positional moves
     """
-    def move_priority(move: chess.Move) -> int:
-        score = 0
-        # Check captures
+    def move_priority(move: chess.Move) -> float:
+        score = 0.0
+
+        # 1. Captures (MVV-LVA)
         if board.is_capture(move):
-            score += 100
-            # Bonus if capturing with lower-value piece or capturing higher-value piece
-            captured_piece = board.piece_at(move.to_square)
-            if captured_piece:
-                score += captured_piece.piece_type * 10
+            score += 1000.0
+            victim_piece = board.piece_at(move.to_square)
+            attacker_piece = board.piece_at(move.from_square)
+            victim_val = victim_piece.piece_type if victim_piece else 1
+            attacker_val = attacker_piece.piece_type if attacker_piece else 1
+            # Victim value dominates; attacker value is tie-breaker (pawn takes queen > queen takes queen)
+            score += victim_val * 100.0 - attacker_val * 10.0
 
-        # Check promotions
+        # 2. Pawn Promotions
         if move.promotion:
-            score += 80
+            if move.promotion == chess.QUEEN:
+                score += 800.0
+            elif move.promotion == chess.KNIGHT:
+                score += 500.0
+            else:
+                score += 200.0
 
-        # Check giving check
+        # 3. Castling (strongly encouraged early for king safety)
+        if board.is_castling(move):
+            score += 300.0
+
+        # 4. Giving Check
         if board.gives_check(move):
-            score += 50
+            score += 150.0
+
+        # 5. Central Development (Knights and Bishops moving toward center)
+        moving_piece = board.piece_at(move.from_square)
+        if moving_piece and moving_piece.piece_type in (chess.KNIGHT, chess.BISHOP):
+            if move.to_square in (chess.D4, chess.E4, chess.D5, chess.E5, chess.C3, chess.F3, chess.C6, chess.F6):
+                score += 40.0
 
         return score
 
@@ -73,7 +86,8 @@ def alpha_beta(
     beta: float,
     is_max: bool
 ) -> float:
-    """Minimax search algorithm with Alpha-Beta pruning.
+    """Minimax search algorithm with Alpha-Beta pruning, ply-aware checkmate,
+    and repetition detection.
 
     Args:
         board: Current chess.Board state.
@@ -85,22 +99,27 @@ def alpha_beta(
 
     Returns:
         float: Heuristic evaluation of the position at the leaf or horizon node.
-
-    Syllabus & Coursework Extension Points for Search Teammate:
-    ----------------------------------------------------------
-    1. Quiescence Search:
-       - At depth 0, continue searching only capture moves to avoid the horizon effect.
-    2. Transposition Tables (TT):
-       - Store (Zobrist hash -> depth, flag, eval, best_move) to avoid re-evaluating
-         identical positions reached via different move transpositions.
-    3. Null-Move Pruning & Late Move Reductions (LMR):
-       - Advanced pruning techniques to search deeper along promising branches.
     """
     global LAST_SEARCH_TELEMETRY
     LAST_SEARCH_TELEMETRY["nodes"] = int(LAST_SEARCH_TELEMETRY["nodes"]) + 1
 
-    # Base case: Horizon reached or terminal game state (checkmate/draw)
-    if depth == 0 or board.is_game_over():
+    # Checkmate: ply-adjusted so faster mates are rewarded
+    if board.is_checkmate():
+        # If it's White's turn, White is checkmated -> Black wins (-CHECKMATE_SCORE)
+        # Higher depth remaining = fewer moves to mate = strictly stronger advantage
+        return (-CHECKMATE_SCORE - depth) if board.turn == chess.WHITE else (CHECKMATE_SCORE + depth)
+
+    # Draws: Stalemate, insufficient material, 50-move rule, or 2-fold repetition in search
+    if (
+        board.is_stalemate()
+        or board.is_insufficient_material()
+        or board.can_claim_fifty_moves()
+        or board.is_repetition(2)
+    ):
+        return 0.0
+
+    # Horizon reached: static evaluation
+    if depth == 0:
         return evaluate_board(board)
 
     ordered_moves = order_moves(board)
@@ -115,8 +134,7 @@ def alpha_beta(
             max_eval = max(max_eval, eval_score)
             alpha = max(alpha, eval_score)
             if beta <= alpha:
-                # Beta cutoff: Minimizing player will avoid this branch
-                break
+                break  # Beta cutoff
         return max_eval
     else:
         min_eval = math.inf
@@ -128,8 +146,7 @@ def alpha_beta(
             min_eval = min(min_eval, eval_score)
             beta = min(beta, eval_score)
             if beta <= alpha:
-                # Alpha cutoff: Maximizing player will avoid this branch
-                break
+                break  # Alpha cutoff
         return min_eval
 
 
@@ -140,6 +157,10 @@ def get_best_move(
 ) -> Union[Optional[chess.Move], tuple[Optional[chess.Move], float]]:
     """Determines the optimal move for the current side to move using Alpha-Beta search.
 
+    Includes intelligent tie-breaking:
+      - Penalizes moves that immediately repeat a recent position (avoiding rook shuffle loops).
+      - Prefers moves with higher positional initiative when scores tie.
+
     Args:
         board: The current chess.Board.
         max_depth: Maximum ply search depth (default: 3).
@@ -148,15 +169,7 @@ def get_best_move(
 
     Returns:
         chess.Move | tuple[chess.Move, float] | None:
-        The best legal move found, or None if no legal moves exist (game over).
-
-    Syllabus & Coursework Extension Points for Search Teammate:
-    ----------------------------------------------------------
-    1. Iterative Deepening Depth-First Search (IDDFS):
-       - Loop depth from 1 to max_depth (or until time limit expired).
-       - Enables reliable move return within strict per-move time budgets.
-    2. Principal Variation (PV) Extraction:
-       - Extract the full line of anticipated play (e.g., e2e4 e7e5 g1f3 b8c6).
+        The best legal move found, or None if no legal moves exist.
     """
     global LAST_SEARCH_TELEMETRY
     LAST_SEARCH_TELEMETRY["nodes"] = 0
@@ -170,29 +183,53 @@ def get_best_move(
     # White maximizes, Black minimizes
     is_white_to_move = (board.turn == chess.WHITE)
 
-    best_move: Optional[chess.Move] = legal_moves[0]
     best_eval = -math.inf if is_white_to_move else math.inf
     alpha = -math.inf
     beta = math.inf
 
+    scored_moves: list[tuple[chess.Move, float]] = []
+
     for move in legal_moves:
         board.push(move)
-        # Next ply is opponent's turn: if White moved, opponent is minimizing (False)
         eval_score = alpha_beta(board, max_depth - 1, alpha, beta, not is_white_to_move)
         board.pop()
+
+        scored_moves.append((move, eval_score))
 
         if is_white_to_move:
             if eval_score > best_eval:
                 best_eval = eval_score
-                best_move = move
             alpha = max(alpha, eval_score)
         else:
             if eval_score < best_eval:
                 best_eval = eval_score
-                best_move = move
             beta = min(beta, eval_score)
 
     LAST_SEARCH_TELEMETRY["eval"] = best_eval
+
+    # Filter all moves that achieve best_eval (within tiny epsilon 0.01)
+    epsilon = 0.01
+    if is_white_to_move:
+        top_candidates = [m for m, s in scored_moves if s >= best_eval - epsilon]
+    else:
+        top_candidates = [m for m, s in scored_moves if s <= best_eval + epsilon]
+
+    # Tie-breaking against rook shuffling:
+    # If a candidate move repeats a position (causes repetition) and other non-repeating
+    # candidate moves exist, filter out the repeating moves!
+    non_repeating_candidates = []
+    for move in top_candidates:
+        board.push(move)
+        is_rep = board.is_repetition(2)
+        board.pop()
+        if not is_rep:
+            non_repeating_candidates.append(move)
+
+    if non_repeating_candidates:
+        # Pick the best non-repeating move (first in ordered priority)
+        best_move = non_repeating_candidates[0]
+    else:
+        best_move = top_candidates[0] if top_candidates else legal_moves[0]
 
     if return_eval:
         return best_move, best_eval
@@ -205,11 +242,19 @@ def get_last_telemetry() -> dict[str, Union[int, float]]:
 
 
 if __name__ == "__main__":
-    # Quick self-test for development
+    # Test 1: Starting position move
     test_board = chess.Board()
-    print("[Search Test] Running Minimax Alpha-Beta at depth 3...")
+    print("[Search Test] Running Minimax Alpha-Beta on starting position...")
     move, score = get_best_move(test_board, max_depth=3, return_eval=True)
     telemetry = get_last_telemetry()
     print(f"[Search Test] Selected Move: {move} | Eval: {score:.2f} | Telemetry: {telemetry}")
     assert move is not None, "Search should return a valid legal move"
-    print("Search stub test passed successfully!")
+
+    # Test 2: Verify Rook Shuffling is Eliminated
+    # In Italian Game, Black should Castle (e8g8) or develop (d7d6/Nf6), NOT shuffle rook (h8g8)
+    shuffling_test_board = chess.Board('r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 5 4')
+    chosen_move = get_best_move(shuffling_test_board, max_depth=3)
+    print(f"[Search Test] Move chosen in Italian Game position: {chosen_move} (UCI)")
+    assert chosen_move != chess.Move.from_uci("h8g8"), "Bot MUST NOT shuffle rook to g8 when castling/developing!"
+
+    print("Search stub tests passed successfully!")

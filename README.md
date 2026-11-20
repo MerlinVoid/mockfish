@@ -17,9 +17,9 @@ To prevent Git merge conflicts, the codebase is strictly separated into four sel
 | File | Role / Domain | Core Responsibilities & Next Steps |
 | :--- | :--- | :--- |
 | **`knowledge_base.py`** | **Role 1: Logic & Rules** | • Opening book lookups (`chess.polyglot` / SQLite / dictionary)<br>• Propositional / First-Order Logic (FOL) safety & endgame rules<br>• Endgame tablebase queries (`chess.syzygy`) |
-| **`heuristics.py`** | **Role 2: State Space & Heuristics** | • Piece-Square Tables (PST) for midgame and endgame<br>• Positional evaluation: mobility, center control, king safety<br>• Pawn structure evaluation: doubled, isolated, and passed pawns |
-| **`search.py`** | **Role 3: Adversarial Search** | • Minimax with Alpha-Beta pruning<br>• Advanced move ordering (MVV-LVA, Killer Moves, History Heuristic)<br>• Iterative Deepening DFS (IDDFS) & Quiescence Search<br>• Transposition Tables (Zobrist Hashing) |
-| **`main.py`** | **Role 4: GUI & Integrator** | • Tkinter GUI canvas, coordinate mapping, and rendering<br>• Click-to-play event loop and legal move highlighting<br>• Game loop orchestration (Knowledge Base $\rightarrow$ Search $\rightarrow$ Move Execution)<br>• Telemetry bar and match statistics |
+| **`heuristics.py`** | **Role 2: State Space & Heuristics** | • Piece-Square Tables (PST) for midgame and endgame<br>• Positional evaluation: mobility, center control, king safety, castling bonuses<br>• Pawn structure evaluation: doubled, isolated, and passed pawns |
+| **`search.py`** | **Role 3: Adversarial Search** | • Minimax with Alpha-Beta pruning & ply-aware distance-to-mate<br>• Advanced move ordering (MVV-LVA, Killer Moves, History Heuristic)<br>• Anti-shuffling tie-breakers & repetition avoidance<br>• Iterative Deepening DFS (IDDFS) & Transposition Tables |
+| **`main.py`** | **Role 4: GUI & Integrator** | • Tkinter GUI canvas, coordinate mapping, and rendering<br>• In-canvas interactive Game Over screen with "Play Again" and "Review Board"<br>• King Check / Checkmate warning highlights and board flipping<br>• Telemetry bar and match statistics |
 
 ---
 
@@ -39,7 +39,13 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### 4. Run Individual Module Self-Tests
+### 4. Run the Full Test Suite
+Run the automated test suite verifying all 4 modules, anti-shuffling logic, checkmate detection, and GUI overlays:
+```bash
+python test_suite.py
+```
+
+### 5. Run Individual Module Self-Tests
 Each file has a built-in `if __name__ == "__main__":` test block so teammates can test their individual module without launching the full GUI:
 
 ```bash
@@ -73,7 +79,7 @@ flowchart TD
     KBFound -- Yes --> ExecMove["Execute Bot Move & Update Telemetry"]
     KBFound -- No --> SearchMove["get_best_move(board, depth)\n(Role: Adversarial Search)"]
     
-    SearchMove --> AlphaBeta["alpha_beta(depth, alpha, beta)\nwith Move Ordering"]
+    SearchMove --> AlphaBeta["alpha_beta(depth, alpha, beta)\nwith Move Ordering & PST"]
     AlphaBeta --> EvalCall["evaluate_board(board)\n(Role: State Space & Heuristics)"]
     EvalCall --> AlphaBeta
     AlphaBeta --> BestMoveFound["Return Best Move"]
@@ -81,7 +87,7 @@ flowchart TD
     
     ExecMove --> Redraw["Redraw Canvas & Update Telemetry Label"]
     Redraw --> GameOver2{"Is Game Over?"}
-    GameOver2 -- Yes --> EndBanner
+    GameOver2 -- Yes --> EndBanner["In-Canvas Game Over Overlay"]
     GameOver2 -- No --> HumanTurn["Wait for Human Move"]
 ```
 
