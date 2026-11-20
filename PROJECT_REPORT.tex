@@ -91,7 +91,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\color{gray}Mockfish: Knowledge-Guided Adversarial Chess Engine}
-\fancyhead[R]{\small\color{gray}AI with Python Coursework Report}
+\fancyhead[R]{\small\color{gray}Introduction to AI with Python (25CS2000)}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
@@ -106,69 +106,54 @@
 % -----------------------------------------------------------------------------
 \begin{titlepage}
     \centering
-    \vspace*{-0.5cm}
+    \vspace*{1.5cm}
     
-    % University / Department Header
-    {\scshape\Large Department of Computer Science \& Engineering \par}
-    \vspace{0.25cm}
-    {\scshape\large Artificial Intelligence with Python --- Semester Capstone Project \par}
-    \vspace{0.15cm}
-    \noindent\makebox[\linewidth]{\color{primaryblue}\rule{\textwidth}{2pt}}
-    \vspace{0.8cm}
-    
-    % Project Title
+    % Main Project Title
     {\Huge\bfseries\color{primaryblue} MOCKFISH \par}
-    \vspace{0.3cm}
-    {\LARGE\bfseries\color{darkslate} An Intelligent Knowledge-Guided Adversarial \\ Chess Engine \& Interactive GUI \par}
     \vspace{0.4cm}
-    {\large\itshape A Comprehensive Formal Report on Adversarial Search, Heuristics, \\ Knowledge Representation, and Empirical Optimization \par}
-    \vspace{0.9cm}
+    {\LARGE\bfseries\color{darkslate} An Intelligent Knowledge-Guided Adversarial \\ Chess Engine \& Interactive GUI \par}
+    \vspace{1.6cm}
     
-    % Project Details Box
+    % Course & Repository Box
     \begin{center}
     \colorbox{lightgraybg}{
-        \begin{minipage}{0.92\textwidth}
-        \vspace{0.3cm}
+        \begin{minipage}{0.88\textwidth}
+        \vspace{0.35cm}
+        \centering
+        \renewcommand{\arraystretch}{1.45}
         \begin{tabular}{ll}
-            \textbf{Course Code / Title}: & AI with Python (CS-401 / AI Capstone) \\
-            \textbf{Project Category}:    & Intelligent Game-Playing Agent \& Adversarial Systems \\
-            \textbf{Team Size}:           & 4 Students (Collaborative Modular Roles) \\
-            \textbf{Repository}:          & \url{https://github.com/unclePRO/mockfish} \\
-            \textbf{Submission Date}:     & \today \\
+            \textbf{Course Name}: & Introduction to AI with Python \\
+            \textbf{Course Code}: & 25CS2000 \\
+            \textbf{GitHub Repository}: & \url{https://github.com/unclePRO/mockfish} \\
         \end{tabular}
-        \vspace{0.3cm}
+        \vspace{0.35cm}
         \end{minipage}
     }
     \end{center}
     
-    \vspace{0.7cm}
+    \vspace{1.6cm}
     
     % Team Members Table
     {\large\bfseries\color{primaryblue} Project Team Members \& System Allocations \par}
-    \vspace{0.3cm}
+    \vspace{0.4cm}
     
     \begin{table}[h!]
     \centering
     \small
-    \renewcommand{\arraystretch}{1.3}
-    \begin{tabularx}{0.94\textwidth}{l c Y l}
+    \renewcommand{\arraystretch}{1.35}
+    \begin{tabularx}{0.96\textwidth}{l c Y l}
         \toprule
         \textbf{Student Name} & \textbf{Roll Number} & \textbf{Assigned Subsystem \& Role} & \textbf{Owned Module} \\
         \midrule
-        \textbf{Student 1} & 21BCSE101 & \textbf{Logic \& Rules Specialist}: Opening Book \& Propositional Logic & \texttt{knowledge\_base.py} \\
-        \textbf{Student 2} & 21BCSE102 & \textbf{State Space \& Heuristics}: Piece-Square Tables (PST) \& Eval & \texttt{heuristics.py} \\
-        \textbf{Student 3} & 21BCSE103 & \textbf{Adversarial Search}: Minimax, Alpha-Beta, Move Ordering & \texttt{search.py} \\
-        \textbf{Student 4} & 21BCSE104 & \textbf{GUI, Integrator \& Benchmark}: Canvas, Game Loop \& Metrics & \texttt{main.py}, \texttt{benchmark.py} \\
+        \textbf{B Sreenikesh} & CS25B2051 & \textbf{Logic \& Rules Specialist}: Opening Book \& Propositional Logic & \texttt{knowledge\_base.py} \\
+        \textbf{Aditya Kumar} & CS25I1050 & \textbf{State Space \& Heuristics}: Piece-Square Tables (PST) \& Eval & \texttt{heuristics.py} \\
+        \textbf{Amit Kumar}   & CS25I1051 & \textbf{Adversarial Search}: Minimax, Alpha-Beta, Move Ordering & \texttt{search.py} \\
+        \textbf{Aviral Pandey}& CS25B2054 & \textbf{GUI, Integrator \& Benchmark}: Canvas, Game Loop \& Metrics & \texttt{main.py}, \texttt{benchmark.py} \\
         \bottomrule
     \end{tabularx}
     \end{table}
     
     \vfill
-    
-    % Academic Footer
-    \noindent\makebox[\linewidth]{\color{primaryblue}\rule{\textwidth}{0.8pt}}
-    \vspace{0.2cm}
-    {\footnotesize\color{darkslate} Submitted in partial fulfillment of the requirements for the evaluation of Artificial Intelligence with Python Coursework. \\ Designed, programmed, verified, and benchmarked by Team Mockfish. \par}
 \end{titlepage}
 
 % -----------------------------------------------------------------------------
@@ -180,7 +165,7 @@
 \section*{Executive Summary}
 \addcontentsline{toc}{section}{Executive Summary}
 
-This capstone report details the design, algorithmic formulation, empirical benchmarking, and architectural integration of \textbf{Mockfish}, an intelligent Python-based chess-playing application. Built to navigate the immense state space of chess ($\sim 10^{120}$ theoretical variations), Mockfish synthesizes four core syllabus pillars: (1)~\textbf{Knowledge-Based Expert Systems} delivering $O(1)$ opening book lookups, (2)~\textbf{Adversarial Game Tree Search} utilizing Minimax with Alpha-Beta Pruning, (3)~\textbf{Tactical Move Ordering} prioritizing captures (MVV-LVA), pawn promotions, castling, and checks, and (4)~\textbf{State Space Evaluation} guided by PeSTO Piece-Square Tables (PST) and dynamic king safety heuristics.
+This report details the design, algorithmic formulation, empirical benchmarking, and architectural integration of \textbf{Mockfish}, an intelligent Python-based chess-playing application. Built to navigate the immense state space of chess ($\sim 10^{120}$ theoretical variations), Mockfish synthesizes four core syllabus pillars: (1)~\textbf{Knowledge-Based Expert Systems} delivering $O(1)$ opening book lookups, (2)~\textbf{Adversarial Game Tree Search} utilizing Minimax with Alpha-Beta Pruning, (3)~\textbf{Tactical Move Ordering} prioritizing captures (MVV-LVA), pawn promotions, castling, and checks, and (4)~\textbf{State Space Evaluation} guided by PeSTO Piece-Square Tables (PST) and dynamic king safety heuristics.
 
 Rigorous benchmarks executed across multiple tactical and positional tournament positions demonstrate that our heuristic move ordering achieves an astounding \textbf{99.27\% search tree pruning efficiency} over unpruned Minimax at depth~3, reducing the effective branching factor from $b_{eff} = 37.35$ down to $7.23$ and yielding a \textbf{156.6$\times$ computational speedup} ($0.26$ seconds versus $41.02$ seconds). Furthermore, the application provides a responsive 8$\times$8 Tkinter graphical interface that eliminates traditional OS modal dialog freezes through an innovative in-canvas Game Over overlay card.
 
@@ -220,29 +205,41 @@ $$\mathcal{M} = \langle S_0, Actions, Result, Constraints, Terminal\_Test, Utili
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[node distance=1.3cm, auto,
-    block/.style={rectangle, draw=primaryblue, fill=primaryblue!6, text width=3.3cm, text centered, rounded corners, minimum height=1.0cm, font=\footnotesize},
-    decision/.style={diamond, draw=secondarygreen, fill=secondarygreen!6, text width=2.4cm, text centered, inner sep=1pt, font=\footnotesize},
-    line/.style={draw=darkslate, -Latex, thick}]
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[
+    auto,
+    block/.style={rectangle, draw=primaryblue, fill=primaryblue!6, text width=3.4cm, text centered, rounded corners=4pt, minimum height=1.15cm, font=\footnotesize\bfseries, thick},
+    decision/.style={diamond, draw=secondarygreen, fill=secondarygreen!6, text width=2.6cm, text centered, inner sep=2pt, font=\footnotesize\bfseries, aspect=1.8, thick},
+    action_block/.style={rectangle, draw=accentgold!80!black, fill=accentgold!8, text width=3.4cm, text centered, rounded corners=4pt, minimum height=1.15cm, font=\footnotesize\bfseries, thick},
+    line/.style={draw=darkslate, -Latex, thick}
+]
 
-    \node [block] (init) {\textbf{Initial State $S_0$}\\Standard FEN Setup};
-    \node [block, right=1.0cm of init] (act) {\textbf{Action Space}\\$Actions(s) \in \text{FIDE}$};
-    \node [block, right=1.0cm of act] (trans) {\textbf{Transition Model}\\$s' = Result(s, a)$};
-    \node [decision, below=1.0cm of trans] (term) {Terminal State?};
-    \node [block, right=1.0cm of term] (util) {\textbf{Utility Function}\\Win: $+20000$\\Loss: $-20000$\\Draw: $0.0$};
-    \node [decision, below=1.0cm of term] (horizon) {Search Horizon $d = 0$?};
-    \node [block, right=1.0cm of horizon] (heur) {\textbf{Heuristic $f(s)$}\\Material + PST + Safety + Files};
-    \node [block, left=1.0cm of horizon] (search) {\textbf{Adversarial Search}\\$\alpha$-$\beta$ Branch \& Bound};
+    % Row 1: Setup, Generation, Transition
+    \node [block] (init) at (0, 0) {Initial State $S_0$\\ \normalfont\scriptsize Standard FEN Setup};
+    \node [action_block] (act) at (4.6, 0) {Action Space\\ \normalfont\scriptsize $Actions(s) \in \text{FIDE Legal}$};
+    \node [block] (trans) at (9.4, 0) {Transition Model\\ \normalfont\scriptsize $s' = Result(s, a)$};
 
+    % Row 2: Terminal check & Utility
+    \node [decision] (term) at (9.4, -2.4) {Terminal State?\\ \normalfont\scriptsize Checkmate / Draw};
+    \node [block, draw=red!70!black, fill=red!6] (util) at (14.2, -2.4) {Terminal Utility\\ \normalfont\scriptsize Win: $+20000$ $|$ Loss: $-20000$\\Draw: $0.00$};
+
+    % Row 3: Horizon check, Heuristic & Adversarial Search
+    \node [decision] (horizon) at (9.4, -5.0) {Search Horizon\\ \normalfont\scriptsize $depth = 0$?};
+    \node [block, draw=secondarygreen!80!black, fill=secondarygreen!8] (heur) at (14.2, -5.0) {Heuristic Eval $f(s)$\\ \normalfont\scriptsize Material + PST + Safety};
+    \node [action_block] (search) at (4.6, -5.0) {Adversarial Search\\ \normalfont\scriptsize Minimax with $\alpha$-$\beta$ Pruning};
+
+    % Clean Orthogonal Connections
     \path [line] (init) -- (act);
     \path [line] (act) -- (trans);
     \path [line] (trans) -- (term);
-    \path [line] (term) -- node [above] {Yes} (util);
-    \path [line] (term) -- node [right] {No} (horizon);
-    \path [line] (horizon) -- node [above] {Yes} (heur);
-    \path [line] (horizon) -- node [above] {No} (search);
-    \path [line] (search) |- (act);
+    \path [line] (term) -- node [above, font=\scriptsize\bfseries] {Yes} (util);
+    \path [line] (term) -- node [right, font=\scriptsize\bfseries] {No} (horizon);
+    \path [line] (horizon) -- node [above, font=\scriptsize\bfseries] {Yes} (heur);
+    \path [line] (horizon) -- node [above, font=\scriptsize\bfseries] {No} (search);
+    \path [line] (search) -- node [left, font=\scriptsize\bfseries] {Iterate $a \in Actions(s)$} (act);
+
 \end{tikzpicture}
+}
 \caption{Systemic Architecture and Problem Formulation Flowchart of Mockfish.}
 \label{fig:problem_formulation}
 \end{figure}
@@ -383,6 +380,39 @@ Empirical evaluations were conducted on an AMD Ryzen / Windows platform using \t
     \item \textbf{Branching Factor Reduction}: Effective branching factor ($b_{eff} = N^{1/d}$) shrank from $37.35$ down to $7.23$, approaching the theoretical best-case limit ($\sqrt{b} \approx \sqrt{36} = 6$).
 \end{enumerate}
 
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    title={\textbf{Nodes Explored at Depth 3 (Tactical Exchange Position)}},
+    ylabel={Nodes Explored ($\log_{10}$ Scale)},
+    symbolic x coords={PureMinimax, ABUnordered, IDDFS, ABMoveOrdering},
+    xticklabels={Pure Minimax, {Alpha-Beta (Unordered)}, IDDFS, {Alpha-Beta + Move Ordering}},
+    x tick label style={font=\footnotesize, rotate=15, anchor=north east},
+    xtick=data,
+    nodes near coords,
+    nodes near coords style={font=\scriptsize},
+    ymin=100, ymax=120000,
+    ymode=log,
+    bar width=20pt,
+    width=0.92\textwidth,
+    height=6.2cm,
+    grid=major,
+    grid style={dashed, gray!30}
+]
+\addplot[fill=primaryblue!75, draw=primaryblue] coordinates {
+    (PureMinimax, 52088)
+    (ABUnordered, 3253)
+    (IDDFS, 518)
+    (ABMoveOrdering, 378)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Empirical Node Count Comparison Across Algorithms at Depth 3.}
+\label{fig:nodes_chart}
+\end{figure}
+
 % -----------------------------------------------------------------------------
 % SECTION 5: COMPARATIVE JUSTIFICATION
 % -----------------------------------------------------------------------------
@@ -453,17 +483,28 @@ To eliminate merge conflicts during development, the codebase was partitioned in
 \label{tab:team_division}
 \small
 \renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{L{2.8cm} L{3.8cm} Y}
+\begin{tabularx}{\textwidth}{L{3.0cm} L{3.6cm} Y}
 \toprule
 \textbf{Team Member} & \textbf{Assigned Module} & \textbf{Key Responsibilities \& Implemented Algorithms} \\
 \midrule
-\textbf{Student 1} & Logic \& Rules Specialist (\texttt{knowledge\_base.py}) & Implemented opening book mapping for King's Pawn (\texttt{1. e4}), Queen's Pawn (\texttt{1. d4}), English, and Reti lines; formulated propositional rules and tablebase query hooks. \\
-\textbf{Student 2} & State Space \& Heuristics (\texttt{heuristics.py}) & Implemented PeSTO Piece-Square Tables (PST) with vertical reflection mirroring; formulated positional bonuses for castling, open rook files, and bishop pairs. \\
-\textbf{Student 3} & Adversarial Search Specialist (\texttt{search.py}) & Developed Minimax with Alpha-Beta pruning; engineered MVV-LVA move ordering, ply-adjusted checkmate scoring ($\pm 20000 \pm depth$), and anti-shuffling repetition filters. \\
-\textbf{Student 4} & GUI, Integrator \& Benchmarking (\texttt{main.py}, \texttt{test\_suite.py}, \texttt{benchmark.py}) & Developed Tkinter Canvas, in-canvas Game Over overlay card, board flipping, telemetry HUD, automated unit tests, and empirical benchmarking suite. \\
+\textbf{B Sreenikesh}\newline(CS25B2051) & Logic \& Rules Specialist (\texttt{knowledge\_base.py}) & Implemented opening book mapping for King's Pawn (\texttt{1. e4}), Queen's Pawn (\texttt{1. d4}), English, and Reti lines; formulated propositional rules and tablebase query hooks. \\
+\addlinespace
+\textbf{Aditya Kumar}\newline(CS25I1050) & State Space \& Heuristics (\texttt{heuristics.py}) & Implemented PeSTO Piece-Square Tables (PST) with vertical reflection mirroring; formulated positional bonuses for castling, open rook files, and bishop pairs. \\
+\addlinespace
+\textbf{Amit Kumar}\newline(CS25I1051)   & Adversarial Search Specialist (\texttt{search.py}) & Developed Minimax with Alpha-Beta pruning; engineered MVV-LVA move ordering, ply-adjusted checkmate scoring ($\pm 20000 \pm depth$), and anti-shuffling repetition filters. \\
+\addlinespace
+\textbf{Aviral Pandey}\newline(CS25B2054) & GUI, Integrator \& Benchmarking (\texttt{main.py}, \texttt{test\_suite.py}, \texttt{benchmark.py}) & Developed Tkinter Canvas, in-canvas Game Over overlay card, board flipping, telemetry HUD, automated unit tests, and empirical benchmarking suite. \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\subsection{Detailed Subsystem Breakdown by Member}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{B Sreenikesh (CS25B2051 --- Logic \& Rules Specialist)}: Developed \texttt{knowledge\_base.py}. Formulated deterministic FEN pattern matching and indexed standard tournament responses for $1.\,e4$, $1.\,d4$, $1.\,c4$, and $1.\,Nf3$, delivering $O(1)$ opening moves.
+    \item \textbf{Aditya Kumar (CS25I1050 --- State Space \& Heuristics Specialist)}: Developed \texttt{heuristics.py}. Formulated the multi-factor heuristic evaluation combining material base weights with PeSTO Piece-Square Tables (PST), castling rights incentives ($+0.20$), castled safety ($+0.35$), open-file rook bonuses ($+0.25$), and bishop pairs ($+0.30$).
+    \item \textbf{Amit Kumar (CS25I1051 --- Adversarial Search Specialist)}: Developed \texttt{search.py}. Implemented Alpha-Beta pruning with ply-adjusted distance-to-mate scoring ($\pm 20000 \pm depth$). Designed heuristic move ordering (MVV-LVA, promotions, checks, castling) and anti-shuffling repetition filters that eliminated the rook-shuffling loop anomaly.
+    \item \textbf{Aviral Pandey (CS25B2054 --- GUI, Systems Integrator \& Benchmarking Specialist)}: Developed \texttt{main.py}, \texttt{benchmark.py}, and \texttt{test\_suite.py}. Built the 512$\times$512 Tkinter canvas interface, board flipping coordinate logic, and the custom in-canvas Game Over overlay card. Programmed the benchmark suite comparing execution times, branching factors, and node traversal counts.
+\end{itemize}
 
 % -----------------------------------------------------------------------------
 % SECTION 8: LIMITATIONS & FUTURE SCOPE
