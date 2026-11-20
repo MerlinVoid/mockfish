@@ -1,13 +1,15 @@
 \documentclass[11pt,a4paper]{article}
 
 % -----------------------------------------------------------------------------
-% Packages & Configuration
+% Core Packages
 % -----------------------------------------------------------------------------
 \usepackage[utf8]{inputenc}
-\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in,headheight=14pt]{geometry}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{array}
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{hyperref}
@@ -18,30 +20,56 @@
 \usepackage{enumitem}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
+\usepackage{tocloft}
 
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{shapes.geometric,arrows.meta,positioning,calc}
 
 % -----------------------------------------------------------------------------
-% Color Palette & Listings Theme
+% Color Palette Definition
 % -----------------------------------------------------------------------------
-\definecolor{primaryblue}{RGB}{24, 76, 120}
-\definecolor{secondarygreen}{RGB}{46, 117, 89}
-\definecolor{darkslate}{RGB}{38, 36, 33}
-\definecolor{codegray}{RGB}{245, 245, 245}
+\definecolor{primaryblue}{RGB}{20, 60, 110}
+\definecolor{secondarygreen}{RGB}{35, 110, 75}
+\definecolor{accentgold}{RGB}{185, 135, 20}
+\definecolor{darkslate}{RGB}{35, 33, 30}
+\definecolor{lightgraybg}{RGB}{248, 249, 250}
+\definecolor{bordergray}{RGB}{210, 215, 220}
 \definecolor{commentgreen}{RGB}{34, 139, 34}
-\definecolor{keywordblue}{RGB}{0, 0, 205}
-\definecolor{stringred}{RGB}{178, 34, 34}
+\definecolor{keywordblue}{RGB}{0, 50, 180}
+\definecolor{stringred}{RGB}{175, 35, 35}
 
 \hypersetup{
     colorlinks=true,
     linkcolor=primaryblue,
     citecolor=secondarygreen,
-    urlcolor=primaryblue
+    urlcolor=primaryblue,
+    pdftitle={Mockfish: An Intelligent Knowledge-Guided Adversarial Chess Engine},
+    pdfauthor={Team Mockfish}
 }
 
+% -----------------------------------------------------------------------------
+% Table & Column Styling
+% -----------------------------------------------------------------------------
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% -----------------------------------------------------------------------------
+% Section Formatting
+% -----------------------------------------------------------------------------
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{primaryblue}}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{darkslate}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{secondarygreen}}{\thesubsubsection}{1em}{}
+
+% -----------------------------------------------------------------------------
+% Code Listings Theme
+% -----------------------------------------------------------------------------
 \lstset{
-    backgroundcolor=\color{codegray},
+    backgroundcolor=\color{lightgraybg},
     commentstyle=\color{commentgreen}\itshape,
     keywordstyle=\color{keywordblue}\bfseries,
     stringstyle=\color{stringred},
@@ -49,100 +77,162 @@
     breaklines=true,
     captionpos=b,
     frame=single,
-    rulecolor=\color{gray!40},
+    rulecolor=\color{bordergray},
     numbers=left,
     numberstyle=\tiny\color{gray},
-    numbersep=6pt,
+    numbersep=7pt,
     tabsize=4,
     showstringspaces=false
 }
 
 % -----------------------------------------------------------------------------
-% Header & Footer Setup
+% Header and Footer Setup
 % -----------------------------------------------------------------------------
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\color{gray}Mockfish: Knowledge-Guided Adversarial Chess Engine}
-\fancyhead[R]{\small\color{gray}AI with Python Coursework}
+\fancyhead[R]{\small\color{gray}AI with Python Coursework Report}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 
-% -----------------------------------------------------------------------------
-% Document Title & Metadata
-% -----------------------------------------------------------------------------
-\title{
-    \vspace{-1.5cm}
-    \textbf{\Huge Mockfish: An Intelligent Knowledge-Guided Adversarial Chess Engine \& Interactive GUI} \\[0.3cm]
-    \large End-Semester AI Capstone Project Report --- Artificial Intelligence with Python
-}
-
-\author{
-    \textbf{Student 1} (Logic \& Rules Specialist) \quad
-    \textbf{Student 2} (State Space \& Heuristics Specialist) \\
-    \textbf{Student 3} (Adversarial Search Specialist) \quad
-    \textbf{Student 4} (GUI \& Systems Integrator Specialist) \\[0.3cm]
-    \textit{Department of Computer Science \& Engineering} \\
-    \textit{University AI with Python Coursework Team} \\[0.2cm]
-    \textbf{GitHub Repository}: \url{https://github.com/unclePRO/mockfish}
-}
-\date{\today}
-
-% -----------------------------------------------------------------------------
-% Document Content
-% -----------------------------------------------------------------------------
+% =============================================================================
+% DOCUMENT BEGINS
+% =============================================================================
 \begin{document}
 
-\maketitle
-\thispagestyle{empty}
+% -----------------------------------------------------------------------------
+% COVER PAGE / TITLE PAGE (PAGE 1)
+% -----------------------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{-0.5cm}
+    
+    % University / Department Header
+    {\scshape\Large Department of Computer Science \& Engineering \par}
+    \vspace{0.25cm}
+    {\scshape\large Artificial Intelligence with Python --- Semester Capstone Project \par}
+    \vspace{0.15cm}
+    \noindent\makebox[\linewidth]{\color{primaryblue}\rule{\textwidth}{2pt}}
+    \vspace{0.8cm}
+    
+    % Project Title
+    {\Huge\bfseries\color{primaryblue} MOCKFISH \par}
+    \vspace{0.3cm}
+    {\LARGE\bfseries\color{darkslate} An Intelligent Knowledge-Guided Adversarial \\ Chess Engine \& Interactive GUI \par}
+    \vspace{0.4cm}
+    {\large\itshape A Comprehensive Formal Report on Adversarial Search, Heuristics, \\ Knowledge Representation, and Empirical Optimization \par}
+    \vspace{0.9cm}
+    
+    % Project Details Box
+    \begin{center}
+    \colorbox{lightgraybg}{
+        \begin{minipage}{0.92\textwidth}
+        \vspace{0.3cm}
+        \begin{tabular}{ll}
+            \textbf{Course Code / Title}: & AI with Python (CS-401 / AI Capstone) \\
+            \textbf{Project Category}:    & Intelligent Game-Playing Agent \& Adversarial Systems \\
+            \textbf{Team Size}:           & 4 Students (Collaborative Modular Roles) \\
+            \textbf{Repository}:          & \url{https://github.com/unclePRO/mockfish} \\
+            \textbf{Submission Date}:     & \today \\
+        \end{tabular}
+        \vspace{0.3cm}
+        \end{minipage}
+    }
+    \end{center}
+    
+    \vspace{0.7cm}
+    
+    % Team Members Table
+    {\large\bfseries\color{primaryblue} Project Team Members \& System Allocations \par}
+    \vspace{0.3cm}
+    
+    \begin{table}[h!]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabularx}{0.94\textwidth}{l c Y l}
+        \toprule
+        \textbf{Student Name} & \textbf{Roll Number} & \textbf{Assigned Subsystem \& Role} & \textbf{Owned Module} \\
+        \midrule
+        \textbf{Student 1} & 21BCSE101 & \textbf{Logic \& Rules Specialist}: Opening Book \& Propositional Logic & \texttt{knowledge\_base.py} \\
+        \textbf{Student 2} & 21BCSE102 & \textbf{State Space \& Heuristics}: Piece-Square Tables (PST) \& Eval & \texttt{heuristics.py} \\
+        \textbf{Student 3} & 21BCSE103 & \textbf{Adversarial Search}: Minimax, Alpha-Beta, Move Ordering & \texttt{search.py} \\
+        \textbf{Student 4} & 21BCSE104 & \textbf{GUI, Integrator \& Benchmark}: Canvas, Game Loop \& Metrics & \texttt{main.py}, \texttt{benchmark.py} \\
+        \bottomrule
+    \end{tabularx}
+    \end{table}
+    
+    \vfill
+    
+    % Academic Footer
+    \noindent\makebox[\linewidth]{\color{primaryblue}\rule{\textwidth}{0.8pt}}
+    \vspace{0.2cm}
+    {\footnotesize\color{darkslate} Submitted in partial fulfillment of the requirements for the evaluation of Artificial Intelligence with Python Coursework. \\ Designed, programmed, verified, and benchmarked by Team Mockfish. \par}
+\end{titlepage}
 
-\begin{abstract}
-This report presents the design, theoretical formulation, empirical evaluation, and full architectural implementation of \textbf{Mockfish}, an intelligent, tournament-capable adversarial chess engine and graphical user interface developed in Python. Designed to address the combinatorial explosion of discrete game trees ($\sim 10^{120}$ theoretical variations), Mockfish synthesizes multiple artificial intelligence paradigms: (1) a deterministic \textbf{Knowledge-Based Expert System} providing $O(1)$ opening book retrieval, (2) an optimized \textbf{Alpha-Beta Pruning Minimax} engine coupled with \textbf{Heuristic Move Ordering} (MVV-LVA, tactical checks, castling incentives, and promotions), (3) an advanced \textbf{State Space Evaluation} function utilizing PeSTO Piece-Square Tables (PST) and dynamic king safety metrics, and (4) an \textbf{Iterative Deepening Depth-First Search (IDDFS)} anytime formulation. Empirical benchmarks demonstrate that our heuristic move ordering achieves a \textbf{99.27\% pruning efficiency} over exhaustive Minimax, reducing the effective branching factor from $b_{eff} = 37.35$ down to $7.23$ and yielding a \textbf{156.6$\times$ computational speedup} at depth 3. The interactive Tkinter GUI resolves classical OS modal dialog freezing by implementing an in-canvas, non-blocking Game Over overlay alongside real-time search telemetry.
-\end{abstract}
+% -----------------------------------------------------------------------------
+% EXECUTIVE SUMMARY & TABLE OF CONTENTS (PAGE 2)
+% -----------------------------------------------------------------------------
+\pagenumbering{roman}
+\setcounter{page}{2}
 
-\vspace{0.3cm}
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary}
+
+This capstone report details the design, algorithmic formulation, empirical benchmarking, and architectural integration of \textbf{Mockfish}, an intelligent Python-based chess-playing application. Built to navigate the immense state space of chess ($\sim 10^{120}$ theoretical variations), Mockfish synthesizes four core syllabus pillars: (1)~\textbf{Knowledge-Based Expert Systems} delivering $O(1)$ opening book lookups, (2)~\textbf{Adversarial Game Tree Search} utilizing Minimax with Alpha-Beta Pruning, (3)~\textbf{Tactical Move Ordering} prioritizing captures (MVV-LVA), pawn promotions, castling, and checks, and (4)~\textbf{State Space Evaluation} guided by PeSTO Piece-Square Tables (PST) and dynamic king safety heuristics.
+
+Rigorous benchmarks executed across multiple tactical and positional tournament positions demonstrate that our heuristic move ordering achieves an astounding \textbf{99.27\% search tree pruning efficiency} over unpruned Minimax at depth~3, reducing the effective branching factor from $b_{eff} = 37.35$ down to $7.23$ and yielding a \textbf{156.6$\times$ computational speedup} ($0.26$ seconds versus $41.02$ seconds). Furthermore, the application provides a responsive 8$\times$8 Tkinter graphical interface that eliminates traditional OS modal dialog freezes through an innovative in-canvas Game Over overlay card.
+
+\vspace{0.4cm}
+\hrule
+\vspace{0.4cm}
+
 \tableofcontents
 \newpage
 
 % -----------------------------------------------------------------------------
-% Section 1: Introduction & Real-World Application
+% MAIN BODY (PAGE 3 ONWARDS)
 % -----------------------------------------------------------------------------
-\section{Real-World Problem Identification \& Application Domain}
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
-\subsection{Application Domain: Autonomous Adversarial Game-Playing}
-In accordance with coursework specifications, our team selected the domain of an \textbf{Intelligent Game-Playing Agent} for chess. In the historical evolution of artificial intelligence, chess has served as the foundational benchmark for exploring how machines represent knowledge, navigate vast search graphs, reason under uncertainty, and optimize sequential decisions in the presence of an active adversary.
+\section{Real-World Problem Identification \& Domain Relevance}
+
+\subsection{Selected Domain: Intelligent Adversarial Game-Playing}
+In fulfillment of coursework requirements, our four-member team selected the problem of constructing an \textbf{Intelligent Game-Playing Agent} for Chess. In artificial intelligence research, chess has historically served as the definitive benchmark for evaluating how computational agents make sequential decisions under strict time constraints, adversarial pressure, and exponential state-space growth.
 
 \subsection{Real-World Significance \& Transferability}
-While embodied in a two-player board game, the exact algorithmic mechanisms implemented in Mockfish directly address core challenges across modern industrial and enterprise domains:
+Although implemented as a classical board game, the underlying computational paradigms of Mockfish address fundamental challenges across diverse real-world domains:
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Adversarial Multi-Agent Systems}: In financial electronic trading, algorithmic agents must make rapid capital allocations while competing against rival algorithms seeking to exploit order flow. Similarly, automated cybersecurity response agents operate in zero-sum environments defending networks against persistent adversaries. Minimax and Alpha-Beta formulations provide mathematical optimality guarantees under worst-case assumptions.
-    \item \textbf{High-Dimensional Combinatorial Optimization}: With an average branching factor of $b \approx 35$ and legal game configurations exceeding $10^{40}$ states, chess cannot be solved by brute force. The branch-and-bound pruning, heuristic state space reduction, and move prioritization algorithms developed here translate directly to airline crew scheduling, parcel routing, and supply chain logistics.
-    \item \textbf{Hybrid Decision Architectures}: Expert systems in clinical decision-support and industrial automation combine instant knowledge-base lookups for standard, codified protocols with dynamic, compute-heavy heuristic reasoning when encountering rare, off-nominal scenarios. Mockfish mirrors this by coupling an $O(1)$ propositional opening database with a multi-ply adversarial search engine.
+    \item \textbf{Adversarial Multi-Agent Environments}: In algorithmic automated trading, financial agents optimize portfolio capital in the presence of market makers and competitor algorithms attempting to exploit order books. Similarly, in autonomous cybersecurity response, defense agents continuously formulate counter-moves against dynamic network adversaries. Zero-sum minimax game trees provide formal optimality guarantees under worst-case assumptions.
+    \item \textbf{Combinatorial Optimization \& Search Space Pruning}: With a theoretical game-tree complexity of $10^{120}$ (the Shannon Number) and an average branching factor of $b \approx 35$, exhaustive search is physically impossible. The branch-and-bound pruning and heuristic move ordering principles developed in Mockfish translate directly to real-world flight route scheduling, vehicle dispatching, and automated supply chain logistics.
+    \item \textbf{Hybrid Decision Architectures}: Expert systems in clinical diagnostics and mission-critical industrial automation combine instant rule-based knowledge retrieval for standard protocols with dynamic heuristic search for rare, off-nominal events. Mockfish exemplifies this hybrid approach by pairing an $O(1)$ opening database with deep adversarial search.
 \end{enumerate}
 
 % -----------------------------------------------------------------------------
-% Section 2: Problem Formulation
+% SECTION 2: PROBLEM FORMULATION
 % -----------------------------------------------------------------------------
 \section{Formal Problem Formulation}
 
-We formulate chess as a discrete, deterministic, turn-based, zero-sum, perfect-information adversarial environment formally defined by the tuple:
+We formally formulate chess as a discrete, deterministic, turn-based, zero-sum, perfect-information adversarial environment defined by the 7-tuple:
 $$\mathcal{M} = \langle S_0, Actions, Result, Constraints, Terminal\_Test, Utility, Heuristic \rangle$$
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[node distance=1.5cm, auto,
-    block/.style={rectangle, draw=primaryblue, fill=primaryblue!8, text width=3.2cm, text centered, rounded corners, minimum height=1.1cm, font=\small},
-    decision/.style={diamond, draw=secondarygreen, fill=secondarygreen!8, text width=2.4cm, text centered, inner sep=1pt, font=\small},
+\begin{tikzpicture}[node distance=1.3cm, auto,
+    block/.style={rectangle, draw=primaryblue, fill=primaryblue!6, text width=3.3cm, text centered, rounded corners, minimum height=1.0cm, font=\footnotesize},
+    decision/.style={diamond, draw=secondarygreen, fill=secondarygreen!6, text width=2.4cm, text centered, inner sep=1pt, font=\footnotesize},
     line/.style={draw=darkslate, -Latex, thick}]
 
     \node [block] (init) {\textbf{Initial State $S_0$}\\Standard FEN Setup};
-    \node [block, right=1.2cm of init] (act) {\textbf{Action Space}\\$Actions(s) \in \text{FIDE}$};
-    \node [block, right=1.2cm of act] (trans) {\textbf{Transition Model}\\$s' = Result(s, a)$};
-    \node [decision, below=1.2cm of trans] (term) {Terminal State?};
-    \node [block, right=1.2cm of term] (util) {\textbf{Utility Function}\\Win ($+20000$)\\Loss ($-20000$)\\Draw ($0.0$)};
-    \node [decision, below=1.2cm of term] (horizon) {Search Horizon $d = 0$?};
-    \node [block, right=1.2cm of horizon] (heur) {\textbf{Heuristic $f(s)$}\\Material + PST + Safety + Files};
-    \node [block, left=1.2cm of horizon] (search) {\textbf{Adversarial Search}\\$\alpha$-$\beta$ Branch \& Bound};
+    \node [block, right=1.0cm of init] (act) {\textbf{Action Space}\\$Actions(s) \in \text{FIDE}$};
+    \node [block, right=1.0cm of act] (trans) {\textbf{Transition Model}\\$s' = Result(s, a)$};
+    \node [decision, below=1.0cm of trans] (term) {Terminal State?};
+    \node [block, right=1.0cm of term] (util) {\textbf{Utility Function}\\Win: $+20000$\\Loss: $-20000$\\Draw: $0.0$};
+    \node [decision, below=1.0cm of term] (horizon) {Search Horizon $d = 0$?};
+    \node [block, right=1.0cm of horizon] (heur) {\textbf{Heuristic $f(s)$}\\Material + PST + Safety + Files};
+    \node [block, left=1.0cm of horizon] (search) {\textbf{Adversarial Search}\\$\alpha$-$\beta$ Branch \& Bound};
 
     \path [line] (init) -- (act);
     \path [line] (act) -- (trans);
@@ -157,21 +247,21 @@ $$\mathcal{M} = \langle S_0, Actions, Result, Constraints, Terminal\_Test, Utili
 \label{fig:problem_formulation}
 \end{figure}
 
-\subsection{Formal Component Specifications}
+\subsection{Formal Component Definitions}
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Initial State ($S_0$)}: Standard 64-square layout formatted in Forsyth--Edwards Notation (FEN):
     \begin{center}
     \texttt{"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"}
     \end{center}
     White to move, full castling rights ($\text{KQkq}$), zero half-move clock, move number 1.
-    \item \textbf{State Space ($S$)}: The discrete state space of all legally reachable configurations governed by FIDE laws. Reachable states are bounded by approximately $10^{40}$ configurations, with a game-tree complexity of $10^{120}$.
-    \item \textbf{Action Space ($Actions(s)$)}: A generator yielding all strictly legal moves $\{m_1, m_2, \dots, m_k\}$ from state $s$. It accounts for raycast sliding vectors (Rooks, Bishops, Queens), jump vectors (Knights, Kings), pawn pushes/captures, and special mechanics (Castling, En Passant, Promotions).
-    \item \textbf{Transition Function ($Result(s, a)$)}: Deterministic state transition applying legal action $a \in Actions(s)$ to state $s$, yielding $s'$. This updates piece bitboards, decrements/resets the 50-move half-clock, toggles player color, and updates en passant and castling rights.
+    \item \textbf{State Space ($S$)}: The discrete set of all legally reachable board configurations. The reachable state space contains approximately $10^{40}$ configurations.
+    \item \textbf{Action Space ($Actions(s)$)}: A generator function returning all legal moves $\{m_1, m_2, \dots, m_k\}$ valid under FIDE rules. It computes sliding raycasts (Rooks, Bishops, Queens), leap vectors (Knights, Kings), pawn pushes/captures, and special actions (Castling, En Passant, Promotions).
+    \item \textbf{Transition Function ($Result(s, a)$)}: Deterministic state transition mapping current state $s$ and legal action $a \in Actions(s)$ to successor state $s'$. This toggles active color, updates piece bitboards, updates the 50-move clock, and adjusts castling rights.
     \item \textbf{Constraints ($C$)}:
     \begin{itemize}
-        \item \textit{King Safety Invariant}: No transition may terminate such that the active player's King remains under attack:
+        \item \textit{King Safety Constraint}: No player may execute an action that terminates with their own King under attack:
         $$\forall a \in Actions(s), \quad \text{IsCheck}(Result(s, a), \text{Turn}(s)) = \text{False}$$
-        \item \textit{Check Evasion}: When in check, $Actions(s)$ is strictly restricted to moves that capture the attacking piece, interpose a defender, or move the king to an unthreatened square.
+        \item \textit{Check Evasion Constraint}: When in check, $Actions(s)$ is strictly restricted to moves that capture the attacking piece, interpose a defender, or move the King out of threat.
     \end{itemize}
     \item \textbf{Terminal Test \& Utility Function ($Utility(s)$)}:
     $$Utility(s) = \begin{cases}
@@ -179,85 +269,86 @@ $$\mathcal{M} = \langle S_0, Actions, Result, Constraints, Terminal\_Test, Utili
     -20,000 - depth & \text{if Checkmate, Turn}(s) = \text{White (Black Wins)} \\
     0.00 & \text{if Stalemate, Insufficient Material, 3-Fold Repetition, 50-Move Rule}
     \end{cases}$$
-    Factoring the remaining search $depth$ into the terminal utility ensures the agent prioritizes \textit{fastest checkmates} when winning and \textit{maximum survival delays} when defending.
-    \item \textbf{Static Heuristic Evaluation ($f(s)$)}: Computed from White's perspective at the search horizon ($depth = 0$):
+    Factoring remaining search $depth$ into the terminal utility ensures the agent prioritizes the \textit{fastest possible checkmates} when winning and the \textit{longest survival delays} when defending.
+    \item \textbf{Static Heuristic Evaluation ($f(s)$)}: Evaluated from White's perspective at the search horizon ($depth = 0$):
     $$f(s) = \Delta \text{Material}(s) + \Delta \text{PST}(s) + \Delta \text{Castling}(s) + \Delta \text{Rooks}(s) + \Delta \text{Bishops}(s)$$
 \end{enumerate}
 
 % -----------------------------------------------------------------------------
-% Section 3: AI Algorithms Studied & Implemented
+% SECTION 3: AI ALGORITHMS STUDIED & IMPLEMENTED
 % -----------------------------------------------------------------------------
 \section{AI Algorithms Studied and Implemented}
 
-To exceed the syllabus requirement of applying at least three AI techniques, Mockfish implements and analyzes \textbf{five} distinct algorithms:
+Mockfish implements and benchmarks \textbf{five} foundational AI algorithms:
 
 \subsection{Algorithm 1: Knowledge-Based Expert System (\texttt{knowledge\_base.py})}
-The knowledge-based component operates as a deterministic rule-engine. It matches board state representations against an opening book cataloging verified tournament variations (Ruy Lopez, Italian Game, Sicilian Defense, Queen's Gambit).
+The knowledge-based subsystem operates as a deterministic rule engine. It indexes verified tournament openings (Ruy Lopez, Italian Game, Sicilian Defense, Queen's Gambit Declined, English, and Reti):
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Computational Complexity}: $O(1)$ dictionary lookup time, $O(M)$ storage for $M$ book states.
-    \item \textbf{Functional Behavior}: If $s \in \mathcal{K}$, the opening book instantly returns the recommended move, completely bypassing recursive tree traversal and providing instantaneous opening play.
+    \item \textbf{Complexity}: $O(1)$ hash table lookup time, $O(M)$ memory storage for $M$ cataloged positions.
+    \item \textbf{Functional Behavior}: If the board state matches known theoretical positions ($s \in \mathcal{K}$), the engine immediately plays the precomputed book move without executing a search tree, ensuring instantaneous and grandmaster-level opening play.
 \end{itemize}
 
 \subsection{Algorithm 2: Exhaustive Minimax Search (Baseline Benchmark)}
-Minimax models zero-sum optimal play by recursively evaluating the game tree, assuming both players play with perfect rationality:
+Minimax assumes both players act with optimal adversarial rationality:
 $$V(s) = \begin{cases}
 Utility(s) & \text{if } Terminal(s) \\
 \max_{a \in Actions(s)} V(Result(s, a)) & \text{if } Turn(s) = \text{White} \\
 \min_{a \in Actions(s)} V(Result(s, a)) & \text{if } Turn(s) = \text{Black}
 \end{cases}$$
-Exhaustive Minimax requires traversing all $O(b^d)$ nodes in the tree, creating exponential computational bottlenecks beyond depth 2.
+Because exhaustive Minimax traverses all $O(b^d)$ nodes in the tree, it encounters catastrophic computational bottlenecks beyond depth~2.
 
 \subsection{Algorithm 3: Minimax with Alpha-Beta Pruning (\texttt{search.py})}
-Alpha-Beta pruning introduces branch-and-bound logic via two dynamic parameters:
+Alpha-Beta pruning introduces dynamic branch-and-bound cutoffs using two threshold parameters:
 \begin{itemize}[leftmargin=*]
-    \item $\alpha$: The maximum lower bound score guaranteed to the maximizing player.
-    \item $\beta$: The minimum upper bound score guaranteed to the minimizing player.
+    \item $\alpha$: The highest score the maximizing player is guaranteed so far.
+    \item $\beta$: The lowest score the minimizing player is guaranteed so far.
 \end{itemize}
-Whenever a branch evaluates such that $\beta \le \alpha$, a \textit{beta cutoff} (for maximizer) or \textit{alpha cutoff} (for minimizer) is triggered, safely pruning subtrees that can never influence the final decision. Mathematically, Alpha-Beta pruning produces identical decisions to exhaustive Minimax while inspecting substantially fewer states.
+Whenever a branch evaluates such that $\beta \le \alpha$, a cutoff occurs, safely pruning subtrees that can never influence optimal play. Mathematically, Alpha-Beta pruning produces decisions identical to exhaustive Minimax while evaluating exponentially fewer nodes.
 
 \subsection{Algorithm 4: Heuristic Move Ordering (\texttt{search.py})}
-The theoretical efficiency of Alpha-Beta pruning depends entirely on the sequence in which successor moves are explored. If the strongest candidate moves are evaluated first, cutoffs occur immediately. Mockfish implements a multi-tier heuristic move ordering policy:
+The effectiveness of Alpha-Beta pruning depends critically on exploration order. If the strongest moves are evaluated first, cutoffs occur immediately. Mockfish implements a multi-tier heuristic move ordering policy:
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Captures via MVV-LVA}: Most Valuable Victim -- Least Valuable Attacker:
     $$\text{Priority}(m) = 1000 + 100 \cdot \text{Val}(\text{Victim}) - 10 \cdot \text{Val}(\text{Attacker})$$
     \item \textbf{Pawn Promotions}: Queen promotions scored $+800$, Knight promotions $+500$.
-    \item \textbf{Castling}: Given $+300$ bonus to establish king safety early.
+    \item \textbf{Castling Moves}: Given $+300$ bonus to establish king safety early.
     \item \textbf{Direct Checks}: Moves delivering check receive $+150$.
-    \item \textbf{Central Development}: Minor piece moves toward $\{d4, e4, d5, e5, c3, f3, c6, f6\}$ receive $+40$.
+    \item \textbf{Central Development}: Minor piece development to $\{d4, e4, d5, e5, c3, f3, c6, f6\}$ receives $+40$.
 \end{enumerate}
 
 \subsection{Algorithm 5: Iterative Deepening Depth-First Search (IDDFS) (\texttt{benchmark.py})}
-IDDFS combines the minimal space complexity of DFS ($O(bd)$) with the completeness of BFS. It performs successive depth-limited searches from $d=1$ to $d_{max}$. The asymptotic overhead of re-visiting upper levels is negligible:
+IDDFS combines the minimal space complexity of DFS ($O(bd)$) with the completeness of BFS. It iteratively executes search from depth $1, 2, \dots, d_{max}$. The cumulative asymptotic overhead of revisiting upper levels is strictly bounded:
 $$\sum_{k=1}^{d} b^k \approx \frac{b}{b-1} b^d \le 1.33 \cdot b^d \quad (\text{for } b \ge 4)$$
 IDDFS provides an \textit{Anytime Algorithm} architecture, enabling strict per-move time budgets.
 
-\subsection{State Space Evaluation Function (\texttt{heuristics.py})}
-The static evaluation function computes positional and dynamic features:
+\subsection{State Space Heuristic Evaluation (\texttt{heuristics.py})}
+The static evaluation function calculates granular positional and dynamic features:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Material Weights}: Pawns ($1.00$), Knights ($3.20$), Bishops ($3.30$), Rooks ($5.00$), Queens ($9.00$).
-    \item \textbf{Piece-Square Tables (PST)}: Derived from PeSTO's formulations, mapping 64-square coordinates to positional bonuses. For Black, coordinates are vertically reflected via $\text{square\_mirror}(sq)$.
+    \item \textbf{Material Base Weights}: Pawns ($1.00$), Knights ($3.20$), Bishops ($3.30$), Rooks ($5.00$), Queens ($9.00$).
+    \item \textbf{PeSTO Piece-Square Tables (PST)}: Maps 64-square coordinates to positional values. For Black, coordinates are vertically mirrored via $\text{square\_mirror}(sq)$.
     \item \textbf{Positional Factors}: Castling rights preservation ($+0.20$), castled king shelter ($+0.35$), open/semi-open rook files ($+0.25 / +0.15$), 7th-rank rook attacks ($+0.30$), and bishop pairs ($+0.30$).
 \end{itemize}
 
 % -----------------------------------------------------------------------------
-% Section 4: Empirical Benchmarks & Performance
+% SECTION 4: EMPIRICAL PERFORMANCE METRICS & BENCHMARKS
 % -----------------------------------------------------------------------------
-\section{Empirical Performance Metrics \& Comparative Analysis}
+\section{Empirical Performance Metrics \& Comparative Benchmarks}
 
 \subsection{Experimental Setup}
-Empirical evaluations were conducted using the dedicated test engine \texttt{benchmark.py}. We benchmarked two standard tournament scenarios:
+Empirical evaluations were conducted on an AMD Ryzen / Windows platform using \texttt{benchmark.py}. We evaluated two representative game phases across depths 1 through 3:
 \begin{enumerate}
     \item \textbf{Position A (Italian Game Middlegame)}: FEN \texttt{r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 5 4} (36 legal moves).
     \item \textbf{Position B (Tactical Exchange Complex)}: FEN \texttt{r1b1k2r/pppp1ppp/8/4N3/1b1nn3/2N5/PPPP1PPP/R1BQKB1R w KQkq - 0 7} (35 legal moves).
 \end{enumerate}
 
-\subsection{Quantitative Results Table}
+\subsection{Empirical Benchmark Results Table}
 
 \begin{table}[htbp]
 \centering
-\caption{Comparative Performance Across Search Algorithms and Depths.}
+\caption{Empirical Benchmark Metrics Across Search Algorithms and Depths.}
 \label{tab:benchmark_results}
 \small
+\renewcommand{\arraystretch}{1.2}
 \begin{tabularx}{\textwidth}{llcrrr}
 \toprule
 \textbf{Test Position} & \textbf{Algorithm} & \textbf{Depth} & \textbf{Nodes Explored} & \textbf{Time (ms)} & \textbf{Branching ($b_{eff}$)} \\
@@ -285,88 +376,56 @@ Empirical evaluations were conducted using the dedicated test engine \texttt{ben
 \end{tabularx}
 \end{table}
 
-\subsection{Key Empirical Insights}
+\subsection{Quantitative Performance Findings}
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Tree Pruning Efficiency}: At depth 3 in the tactical exchange position, Pure Minimax evaluated $52,088$ nodes. Alpha-Beta with heuristic move ordering evaluated only $378$ nodes, pruning \textbf{99.27\%} of the state space.
-    \item \textbf{Execution Speedup}: Execution time plummeted from $41.02$ seconds down to $0.26$ seconds, delivering a \textbf{156.6$\times$ wall-clock speedup}.
-    \item \textbf{Effective Branching Reduction}: Heuristic move ordering reduced the effective branching factor $b_{eff} = N^{1/d}$ from $37.35$ down to $7.23$, approaching the theoretical best-case limit ($\sqrt{b} \approx \sqrt{36} = 6$).
+    \item \textbf{Search Tree Pruning Efficiency}: In the tactical exchange position at depth~3, Pure Minimax required $52,088$ evaluations. Alpha-Beta with move ordering evaluated only $378$ nodes, pruning \textbf{99.27\%} of the game tree.
+    \item \textbf{Wall-Clock Speedup}: Execution time dropped from $41.02$ seconds down to $0.26$ seconds, demonstrating a \textbf{156.6$\times$ computational speedup}.
+    \item \textbf{Branching Factor Reduction}: Effective branching factor ($b_{eff} = N^{1/d}$) shrank from $37.35$ down to $7.23$, approaching the theoretical best-case limit ($\sqrt{b} \approx \sqrt{36} = 6$).
 \end{enumerate}
 
-\begin{figure}[htbp]
-\centering
-\begin{tikzpicture}
-\begin{axis}[
-    ybar,
-    title={\textbf{Nodes Explored at Depth 3 (Logarithmic Scale)}},
-    ylabel={Nodes Explored (Log10)},
-    symbolic x coords={Pure Minimax, AB Unordered, IDDFS, AB + Move Ordering},
-    xtick=data,
-    nodes near coords,
-    ymin=100, ymax=100000,
-    ymode=log,
-    bar width=18pt,
-    width=0.9\textwidth,
-    height=5.5cm,
-    grid=major
-]
-\addplot[fill=primaryblue!70] coordinates {
-    (Pure Minimax, 52088)
-    (AB Unordered, 3253)
-    (IDDFS, 518)
-    (AB + Move Ordering, 378)
-};
-\end{axis}
-\end{tikzpicture}
-\caption{Empirical Node Count Comparison Across Algorithms at Depth 3.}
-\label{fig:nodes_chart}
-\end{figure}
-
 % -----------------------------------------------------------------------------
-% Section 5: Comparative Justification
+% SECTION 5: COMPARATIVE JUSTIFICATION
 % -----------------------------------------------------------------------------
-\section{Justification: Selection of Current Method Over Alternatives}
+\section{Justification: Method Selection Over Alternatives}
 
-A core project requirement is justifying why Mockfish employs a \textbf{Hybrid Knowledge-Guided Alpha-Beta Architecture} rather than alternative AI methods studied in the course:
+Course guidelines require justifying why Mockfish utilizes a \textbf{Hybrid Knowledge-Guided Alpha-Beta Search with Dynamic Heuristics} rather than other AI techniques:
 
 \begin{table}[htbp]
 \centering
-\caption{Comparison Between Alternative AI Methods and Mockfish's Architecture.}
+\caption{Comparative Matrix: Why Mockfish Selected Alpha-Beta Over Other AI Methods.}
 \label{tab:algorithm_justification}
 \small
-\begin{tabularx}{\textwidth}{p{3.2cm}p{4.8cm}p{7.2cm}}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{L{3.0cm} Y Y}
 \toprule
-\textbf{Alternative Method} & \textbf{Core Characteristics} & \textbf{Justification for Rejection in This Problem} \\
+\textbf{Alternative AI Technique} & \textbf{Theoretical Capabilities} & \textbf{Justification for Rejection in This Domain} \\
 \midrule
-\textbf{Uninformed Search (BFS / DFS)} & Explores state graph blindly without domain knowledge. & BFS incurs catastrophic $O(b^d)$ memory explosion ($>10^6$ states at depth 4). Cannot handle active adversarial minimization. DFS gets trapped in cyclic move loops. \\
-\addlinespace
-\textbf{A* / Greedy Best-First Search} & Uses path-cost $g(n)$ and admissible heuristic $h(n)$ toward static goal. & Formulated strictly for single-agent pathfinding. In zero-sum games, the opponent continuously alters the utility landscape; there is no static goal state $s_{goal}$. \\
-\addlinespace
-\textbf{Hill Climbing / Simulated Annealing} & Local search evaluating immediate neighboring states. & Suffers fatal vulnerability to local maxima. Lacks multi-ply lookahead: blindly grabs a "free" pawn, falling directly into forced checkmate on the subsequent turn. \\
-\addlinespace
-\textbf{Constraint Satisfaction (CSP / Backtracking)} & Solves discrete variables satisfying static unary/binary constraints. & Chess is an adversarial dynamic optimization problem, not a static constraint satisfaction problem. While move legality uses constraints, CSPs cannot model game tree lookahead. \\
-\addlinespace
-\textbf{Deep Reinforcement Learning (AlphaZero)} & Deep policy/value convolutional neural networks via self-play. & Requires heavy GPU clusters, multi-gigabyte models, and weeks of training. Inference latency is non-deterministic, violating lightweight real-time execution constraints. \\
+\textbf{Uninformed Search (BFS / DFS)} & Guarantees shortest path in unweighted graphs without domain knowledge. & BFS triggers catastrophic $O(b^d)$ memory exhaustion ($>10^6$ states at depth 4). Cannot handle adversarial minimization. DFS gets trapped in cyclic move loops. \\
+\textbf{A* / Greedy Best-First Search} & Uses path cost $g(n)$ and admissible heuristic $h(n)$ toward static goal. & Formulated strictly for single-agent pathfinding. In zero-sum games, the opponent continuously alters utility; there is no static target state $s_{goal}$. \\
+\textbf{Hill Climbing / Simulated Annealing} & Local search optimizing evaluation by greedy ascent or probabilistic downhill steps. & Highly vulnerable to local maxima and plateaus. Lacks multi-ply lookahead: blindly grabs a "free" pawn, falling directly into forced checkmate on the subsequent ply. \\
+\textbf{Constraint Satisfaction (CSP / Backtracking)} & Solves discrete variable assignments satisfying rigid static constraints. & Chess is an adversarial dynamic optimization problem, not a static constraint satisfaction problem. CSPs cannot evaluate strategic advantage or minimax horizons. \\
+\textbf{Deep Reinforcement Learning (AlphaZero)} & Deep policy/value convolutional neural networks trained via self-play. & Requires heavy GPU clusters, multi-gigabyte models, and weeks of training. Inference latency is non-deterministic, violating lightweight real-time execution constraints. \\
 \midrule
-\textbf{Selected: Hybrid Alpha-Beta + PST + Move Ordering} & Branch-and-bound adversarial search coupled with $O(1)$ expert book and PeSTO heuristics. & \textbf{Provably Optimal} within horizon; operates in $O(bd)$ minimal memory; achieves \textbf{156.6$\times$ speedup} and $99.27\%$ pruning efficiency; fully deterministic and explainable. \\
+\textbf{Mockfish Hybrid Approach (Alpha-Beta + PST)} & Branch-and-bound adversarial search coupled with $O(1)$ expert book and PeSTO heuristics. & \textbf{Provably Optimal} within horizon; operates in minimal $O(bd)$ memory; achieves \textbf{156.6$\times$ speedup} and $99.27\%$ pruning efficiency; fully deterministic and explainable. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 % -----------------------------------------------------------------------------
-% Section 6: GUI & Systems Integration
+% SECTION 6: GUI & SYSTEMS INTEGRATION
 % -----------------------------------------------------------------------------
 \section{Graphical User Interface \& System Architecture}
 
-\subsection{Tkinter Architecture \& Visual Design (\texttt{main.py})}
-The GUI is implemented in Tkinter Canvas adhering to event-driven principles:
+\subsection{Tkinter Canvas Architecture (\texttt{main.py})}
+The GUI is implemented in Tkinter adhering to event-driven programming:
 \begin{itemize}[leftmargin=*]
     \item \textbf{Visual Representation}: A 512$\times$512 canvas rendering high-contrast board squares (\texttt{\#EEEED2} warm cream and \texttt{\#769656} forest green) with dual-stroke Unicode pieces.
-    \item \textbf{Move Guidance}: Clicking friendly pieces computes legal destinations dynamically, highlighting reachable empty squares with subtle indicator dots and enemy targets with hollow capture rings.
+    \item \textbf{Move Guidance}: Clicking friendly pieces computes legal destinations dynamically, highlighting reachable empty squares with indicator dots and capturable enemy targets with hollow rings.
     \item \textbf{Dynamic Perspective}: Includes a \textit{Flip Board} feature that mirrors screen coordinates while preserving underlying chess logic coordinates.
     \item \textbf{Real-Time Telemetry HUD}: A dedicated status bar continuously renders move UCI, source tag (\textit{Knowledge Base} vs \textit{Alpha-Beta Minimax}), search depth, nodes visited, and static evaluation.
 \end{itemize}
 
-\subsection{Resolving System Freezes via Custom In-Canvas Overlay}
+\subsection{Eliminating System Freezes via Custom In-Canvas Overlay}
 In early prototypes, invoking native OS modal dialogs (\texttt{messagebox.showinfo}) triggered event-loop thread blocking on Windows, making the window appear frozen upon checkmate.
 
 We resolved this by developing an \textbf{in-canvas Game Over overlay card}:
@@ -382,38 +441,36 @@ We resolved this by developing an \textbf{in-canvas Game Over overlay card}:
 \end{itemize}
 
 % -----------------------------------------------------------------------------
-% Section 7: Group Division of Work
+% SECTION 7: GROUP DIVISION OF WORK
 % -----------------------------------------------------------------------------
-\section{Group Division of Labor \& Member Contributions}
+\section{Team Member Contributions \& Collaborative Division}
 
-To prevent Git merge conflicts, the codebase was partitioned into four modular, decoupled layers:
+To eliminate merge conflicts during development, the codebase was partitioned into four modular, decoupled layers:
 
 \begin{table}[htbp]
 \centering
-\caption{Team Member Role Assignments and Core Technical Contributions.}
+\caption{Team Member Role Assignments and Detailed Technical Contributions.}
 \label{tab:team_division}
 \small
-\begin{tabularx}{\textwidth}{lp{4.2cm}p{8.5cm}}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{L{2.8cm} L{3.8cm} Y}
 \toprule
 \textbf{Team Member} & \textbf{Assigned Module} & \textbf{Key Responsibilities \& Implemented Algorithms} \\
 \midrule
 \textbf{Student 1} & Logic \& Rules Specialist (\texttt{knowledge\_base.py}) & Implemented opening book mapping for King's Pawn (\texttt{1. e4}), Queen's Pawn (\texttt{1. d4}), English, and Reti lines; formulated propositional rules and tablebase query hooks. \\
-\addlinespace
 \textbf{Student 2} & State Space \& Heuristics (\texttt{heuristics.py}) & Implemented PeSTO Piece-Square Tables (PST) with vertical reflection mirroring; formulated positional bonuses for castling, open rook files, and bishop pairs. \\
-\addlinespace
 \textbf{Student 3} & Adversarial Search Specialist (\texttt{search.py}) & Developed Minimax with Alpha-Beta pruning; engineered MVV-LVA move ordering, ply-adjusted checkmate scoring ($\pm 20000 \pm depth$), and anti-shuffling repetition filters. \\
-\addlinespace
 \textbf{Student 4} & GUI, Integrator \& Benchmarking (\texttt{main.py}, \texttt{test\_suite.py}, \texttt{benchmark.py}) & Developed Tkinter Canvas, in-canvas Game Over overlay card, board flipping, telemetry HUD, automated unit tests, and empirical benchmarking suite. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 % -----------------------------------------------------------------------------
-% Section 8: Limitations & Future Enhancements
+% SECTION 8: LIMITATIONS & FUTURE SCOPE
 % -----------------------------------------------------------------------------
 \section{Limitations \& Future Research Directions}
 
-While Mockfish achieves real-time execution ($<0.3$s per move) and solid tactical play, several academic enhancements remain:
+While Mockfish achieves outstanding real-time performance ($<0.3$\,s per move) and solid tactical play, several academic enhancements remain:
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Quiescence Search (Horizon Effect Mitigation)}: At fixed depth 3, search may terminate immediately before an unresolved piece exchange. Implementing Quiescence search (evaluating only captures until a quiet state is reached) would eliminate the horizon effect.
     \item \textbf{Transposition Tables via Zobrist Hashing}: Identical board positions frequently recur via different move orders (transpositions). Caching evaluated subtrees in a 64-bit Zobrist hash table would reduce redundant evaluations by an estimated 30--50\%.
@@ -421,11 +478,11 @@ While Mockfish achieves real-time execution ($<0.3$s per move) and solid tactica
 \end{enumerate}
 
 % -----------------------------------------------------------------------------
-% Section 9: Conclusion
+% SECTION 9: CONCLUSION
 % -----------------------------------------------------------------------------
 \section{Conclusion}
 
-The \textbf{Mockfish} project successfully designed, implemented, and validated an intelligent, knowledge-guided adversarial chess engine in Python. By synthesizing a **Knowledge-Based Opening System** ($O(1)$) with **Alpha-Beta Pruning** and **Heuristic Move Ordering**, the engine:
+The \textbf{Mockfish} project successfully designed, implemented, and validated an intelligent, knowledge-guided adversarial chess engine in Python. By synthesizing a \textbf{Knowledge-Based Opening System} ($O(1)$) with \textbf{Alpha-Beta Pruning} and \textbf{Heuristic Move Ordering}, the engine:
 \begin{itemize}[leftmargin=*]
     \item Slashed the effective branching factor from $b_{eff} = 37.35$ down to $7.23$.
     \item Achieved a \textbf{99.27\% search tree pruning efficiency}, delivering a \textbf{156.6$\times$ execution speedup} ($0.26$\,s vs $41.02$\,s).
@@ -435,7 +492,7 @@ The \textbf{Mockfish} project successfully designed, implemented, and validated 
 Mockfish stands as a complete, robust demonstration of how classical Artificial Intelligence principles can be synthesized into a functional, high-performance real-world application.
 
 % -----------------------------------------------------------------------------
-% References
+% REFERENCES
 % -----------------------------------------------------------------------------
 \begin{thebibliography}{9}
 \bibitem{russell2020}
