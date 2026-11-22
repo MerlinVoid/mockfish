@@ -4,9 +4,6 @@ Mockfish is a lightweight, modular chess engine with an interactive Tkinter GUI,
 
 The project combines knowledge-based decision-making, adversarial search and heuristic evaluation to play chess against a human opponent. It also compares different search methods based on execution time and the number of explored nodes.
 
-**Course:** Introduction to AI with Python (25CS2000)  
-**Institute:** IIITDM Kancheepuram
-
 ---
 
 ## AI Algorithms and Techniques
@@ -37,16 +34,6 @@ The playable engine uses knowledge-based opening retrieval and fixed-depth Alpha
 - Algorithm benchmarking and automated testing.
 
 ---
-
-## Team Division and Module Responsibilities
-
-| Team Member | Module | Implemented Responsibilities |
-| :--- | :--- | :--- |
-| **B Sreenikesh (CS25B2051)** | `knowledge_base.py` | Opening book, FEN-based position matching, knowledge-based move retrieval and legality validation. |
-| **Aditya Kumar (CS25I1050)** | `heuristics.py` | Material evaluation, Piece-Square Tables, castling incentives, king-position evaluation, rook activity and bishop-pair bonuses. |
-| **Amit Kumar (CS25I1051)** | `search.py` | Minimax with Alpha-Beta pruning, heuristic move ordering, depth-adjusted mate scoring and repetition avoidance. |
-| **Aviral Pandey (CS25B2054)** | `main.py`, `benchmark.py`, `test_suite.py` | Tkinter GUI, game-loop integration, telemetry, Game Over overlay, automated testing and performance benchmarking. |
-
 ### Supporting Files
 
 | File | Purpose |
